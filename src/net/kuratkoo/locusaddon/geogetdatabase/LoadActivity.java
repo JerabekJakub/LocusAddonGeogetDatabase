@@ -235,7 +235,6 @@ public class LoadActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_load);
 
         progress = new ProgressDialog(this);
         progress.setMessage(getString(R.string.loading_dots));
