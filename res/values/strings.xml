@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Locus - addon GeoGet Database</string>
-
     <string name="pref_path">Path settings</string>
     <string name="pref_db_title">GeoGet database path</string>
     <string name="pref_db_sum">Path to database GeoGet file (*.db3 file)</string>
     <string name="pref_attach_title">GeoGet path with attachments</string>
     <string name="pref_attach_sum">Not required. Path to GeoGet folder with geocache attachments (attach folder)</string>
-
     <string name="pref_filter">Filter settings</string>
     <string name="pref_nick_title">Nick on Geocaching.com</string>
     <string name="pref_nick_sum">For recognize own geocaches</string>
@@ -28,21 +26,17 @@
     <string name="pref_limit_sum">Count of geocaches to load. If value equals 0, limit will not be applied (unlimited).</string>
     <string name="pref_limit_nolimit">no limit</string>
     <string name="pref_limit_error">Limit must be number between 0 (no limit) and 9999</string>
-
     <string name="pref_locus">Locus settings</string>
     <string name="pref_import_title">Allow import</string>
     <string name="pref_import_sum">Allow import geocaches to Locus</string>
-
     <string name="geoget_files">GeoGet files</string>
     <string name="loading">Loading</string>
     <string name="geocaches">geocaches</string>
     <string name="loading_dots">Loading…</string>
-
     <string name="load_from_geoget">Load GeoGet geocaches</string>
-
     <string name="error">Error!</string>
     <string name="install_it">Locus application not found! Please install!</string>
-    <string name="update_it">Newer version of Locus required (>= 1.14.5)! Please update!</string>
+    <string name="update_it">Newer version of Locus required (>= 1.14.6)! Please update!</string>
     <string name="out_of_memory">Out of memory! Change filter to decrease geocache count!</string>
     <string name="no_external_storage">External storage (SD card) not found!</string>
 </resources>

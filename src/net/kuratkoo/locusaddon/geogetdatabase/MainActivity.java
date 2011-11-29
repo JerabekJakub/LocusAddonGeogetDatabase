@@ -177,7 +177,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
             return false;
         }
 
-        if ((LocusUtils.getLocusVersionCode(this) < 120 && !LocusUtils.isLocusProInstalled(this)) || (LocusUtils.getLocusVersionCode(this) < 58 && LocusUtils.isLocusProInstalled(this))) {
+        if ((LocusUtils.getLocusVersionCode(this) < 121 && !LocusUtils.isLocusProInstalled(this)) || (LocusUtils.getLocusVersionCode(this) < 59 && LocusUtils.isLocusProInstalled(this))) {
             AlertDialog.Builder ad = new AlertDialog.Builder(this);
             ad.setIcon(android.R.drawable.ic_dialog_alert);
             ad.setTitle(R.string.error);
