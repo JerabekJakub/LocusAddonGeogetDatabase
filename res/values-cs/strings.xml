@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Locus - addon Geoget Database</string>
+    <string name="app_name">Locus - addon GeoGet Database</string>
 
     <string name="pref_path">Nastavení cest</string>
-    <string name="pref_db_title">Databáze Geogetu</string>
-    <string name="pref_db_sum">Cesta k databázi Geogetu (soubor *.db3)</string>
-    <string name="pref_attach_title">Přílohy keší z Geogetu</string>
-    <string name="pref_attach_sum">Nepovinné. Cesta ke Geoget složce s přílohama (složka attach)</string>
+    <string name="pref_db_title">Databáze GeoGetu</string>
+    <string name="pref_db_sum">Cesta k databázi GeoGetu (soubor *.db3)</string>
+    <string name="pref_attach_title">Přílohy keší z GeoGetu</string>
+    <string name="pref_attach_sum">Nepovinné. Cesta ke GeoGet složce s přílohama (složka attach)</string>
 
     <string name="pref_filter">Nastavení filtru</string>
     <string name="pref_nick_title">Uživatelské jméno na Geocaching.com</string>
@@ -33,12 +33,12 @@
     <string name="pref_import_title">Importovat</string>
     <string name="pref_import_sum">Importovat keše do Locusu po načtení z databáze</string>
 
-    <string name="geoget_files">Geoget soubory</string>
+    <string name="geoget_files">GeoGet soubory</string>
     <string name="loading">Načítám</string>
     <string name="geocaches">keší</string>
     <string name="loading_dots">Načítám…</string>
 
-    <string name="load_from_geoget">Keše z Geogetu</string>
+    <string name="load_from_geoget">Načíst keše z GeoGetu</string>
 
     <string name="error">Chyba!</string>
     <string name="install_it">Aplikace Locus nebyla nalezena! Prosím, nainstalujte ji!</string>

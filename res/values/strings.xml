@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Locus - addon Geoget Database</string>
+    <string name="app_name">Locus - addon GeoGet Database</string>
 
     <string name="pref_path">Path settings</string>
-    <string name="pref_db_title">Geoget database path</string>
-    <string name="pref_db_sum">Path to database Geoget file (*.db3 file)</string>
-    <string name="pref_attach_title">Geoget path with attachments</string>
-    <string name="pref_attach_sum">Not required. Path to Geoget folder with geocache attachments (attach folder)</string>
+    <string name="pref_db_title">GeoGet database path</string>
+    <string name="pref_db_sum">Path to database GeoGet file (*.db3 file)</string>
+    <string name="pref_attach_title">GeoGet path with attachments</string>
+    <string name="pref_attach_sum">Not required. Path to GeoGet folder with geocache attachments (attach folder)</string>
 
     <string name="pref_filter">Filter settings</string>
     <string name="pref_nick_title">Nick on Geocaching.com</string>
@@ -33,12 +33,12 @@
     <string name="pref_import_title">Allow import</string>
     <string name="pref_import_sum">Allow import geocaches to Locus</string>
 
-    <string name="geoget_files">Geoget files</string>
+    <string name="geoget_files">GeoGet files</string>
     <string name="loading">Loading</string>
     <string name="geocaches">geocaches</string>
     <string name="loading_dots">Loading…</string>
 
-    <string name="load_from_geoget">Geoget geocaches</string>
+    <string name="load_from_geoget">Load GeoGet geocaches</string>
 
     <string name="error">Error!</string>
     <string name="install_it">Locus application not found! Please install!</string>
