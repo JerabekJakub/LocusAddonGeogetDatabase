@@ -175,7 +175,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
             ad.setMessage(R.string.install_it);
             ad.setPositiveButton(android.R.string.ok, new OnClickListener() {
                 public void onClick(DialogInterface arg0, int arg1) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=menion.android.locus")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + LocusUtils.getLocusDefaultPackageName(MainActivity.this))));
                 }
             });
             ad.show();
@@ -189,7 +189,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
             ad.setMessage(getString(R.string.update_it));
             ad.setPositiveButton(android.R.string.ok, new OnClickListener() {
                 public void onClick(DialogInterface arg0, int arg1) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=menion.android.locus")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + LocusUtils.getLocusDefaultPackageName(MainActivity.this))));
                 }
             });
             ad.show();
