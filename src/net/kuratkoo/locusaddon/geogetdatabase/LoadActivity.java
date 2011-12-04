@@ -170,11 +170,11 @@ public class LoadActivity extends Activity {
                     gcData.country = c.getString(c.getColumnIndex("country"));
                     gcData.state = c.getString(c.getColumnIndex("state"));
                     gcData.notes = c.getString(c.getColumnIndex("comment"));
-                    gcData.container = Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
-                    gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
-                    gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
-                    gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
-                    gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
+                    gcData.container = GeogetUtils.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
+                    gcData.type = GeogetUtils.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
+                    gcData.available = GeogetUtils.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
+                    gcData.archived = GeogetUtils.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
+                    gcData.found = GeogetUtils.isFound(c.getInt(c.getColumnIndex("dtfound")));
                     gcData.computed = false;
 
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -199,11 +199,11 @@ public class LoadActivity extends Activity {
                         pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
                         pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
                         pgdw.name = wp.getString(wp.getColumnIndex("name"));
-                        pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
+                        pgdw.type = GeogetUtils.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
                         pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
                         pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
                         pgdws.add(pgdw);
-                        if (!(pgdw.lat == 0 && pgdw.lon == 0) && Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype"))).equals(PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL)) {
+                        if (!(pgdw.lat == 0 && pgdw.lon == 0) && GeogetUtils.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype"))).equals(PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL)) {
                             gcData.computed = true;
                         }
                     }
@@ -245,7 +245,7 @@ public class LoadActivity extends Activity {
         }
 
         File fd = new File(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("db", ""));
-        if (!Geoget.isGeogetDatabase(fd)) {
+        if (!GeogetUtils.isGeogetDatabase(fd)) {
             Toast.makeText(LoadActivity.this, R.string.no_db_file, Toast.LENGTH_LONG).show();
             finish();
             return;

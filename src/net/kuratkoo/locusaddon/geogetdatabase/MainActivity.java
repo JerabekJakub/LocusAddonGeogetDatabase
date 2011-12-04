@@ -53,7 +53,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
 
         db = (EditTextPreference) getPreferenceScreen().findPreference("db");
         File fd = new File(db.getText());
-        db.setSummary(editFilePreferenceSummary(Geoget.isGeogetDatabase(fd), db.getText(), getText(R.string.pref_db_sum)));
+        db.setSummary(editFilePreferenceSummary(GeogetUtils.isGeogetDatabase(fd), db.getText(), getText(R.string.pref_db_sum)));
 
         attach = (EditTextPreference) getPreferenceScreen().findPreference("attach");
         File fa = new File(attach.getText());
@@ -89,7 +89,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         if (key.equals("db")) {
             String path = sharedPreferences.getString(key, "");
             File fd = new File(path);
-            db.setSummary(editFilePreferenceSummary(Geoget.isGeogetDatabase(fd), path, getText(R.string.pref_db_sum)));
+            db.setSummary(editFilePreferenceSummary(GeogetUtils.isGeogetDatabase(fd), path, getText(R.string.pref_db_sum)));
         }
 
         if (key.equals("attach")) {

@@ -30,7 +30,7 @@ public class DetailActivity extends Activity {
         Intent intent = getIntent();
 
         File fd = new File(PreferenceManager.getDefaultSharedPreferences(this).getString("db", ""));
-        if (!Geoget.isGeogetDatabase(fd)) {
+        if (!GeogetUtils.isGeogetDatabase(fd)) {
             Toast.makeText(this, R.string.no_db_file, Toast.LENGTH_LONG).show();
             finish();
             return;
@@ -61,10 +61,10 @@ public class DetailActivity extends Activity {
                 gcData.country = c.getString(c.getColumnIndex("country"));
                 gcData.state = c.getString(c.getColumnIndex("state"));
                 gcData.notes = c.getString(c.getColumnIndex("comment"));
-                gcData.container = Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
-                gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
+                gcData.container = GeogetUtils.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
+                gcData.type = GeogetUtils.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
                 gcData.encodedHints = c.getString(c.getColumnIndex("hint"));
-                gcData.longDescription = Geoget.decodeZlib(c.getBlob(c.getColumnIndex("longdesc")), buff);
+                gcData.longDescription = GeogetUtils.decodeZlib(c.getBlob(c.getColumnIndex("longdesc")), buff);
 
                 // Try to get files
                 String attachPath = PreferenceManager.getDefaultSharedPreferences(this).getString("attach", "");
@@ -88,10 +88,10 @@ public class DetailActivity extends Activity {
                         filesDescription += "<br /><hr /><br />";
                     }
                 }
-                gcData.shortDescription = filesDescription + Geoget.decodeZlib(c.getBlob(c.getColumnIndex("shortdesc")), buff);
-                gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
-                gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
-                gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
+                gcData.shortDescription = filesDescription + GeogetUtils.decodeZlib(c.getBlob(c.getColumnIndex("shortdesc")), buff);
+                gcData.available = GeogetUtils.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
+                gcData.archived = GeogetUtils.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
+                gcData.found = GeogetUtils.isFound(c.getInt(c.getColumnIndex("dtfound")));
                 gcData.computed = false;
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -114,11 +114,11 @@ public class DetailActivity extends Activity {
                     pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
                     pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
                     pgdw.name = wp.getString(wp.getColumnIndex("name"));
-                    pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
+                    pgdw.type = GeogetUtils.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
                     pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
                     pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
                     pgdws.add(pgdw);
-                    if (!(pgdw.lat == 0 && pgdw.lon == 0) && Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype"))).equals(PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL)) {
+                    if (!(pgdw.lat == 0 && pgdw.lon == 0) && GeogetUtils.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype"))).equals(PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL)) {
                         gcData.computed = true;
                     }
                 }
@@ -135,8 +135,8 @@ public class DetailActivity extends Activity {
                     String found = logs.getString(logs.getColumnIndex("dt"));
                     pgdl.date = found.substring(0, 4) + "-" + found.substring(4, 6) + "-" + found.substring(6, 8) + "T00:00:00Z";
                     pgdl.finder = logs.getString(logs.getColumnIndex("finder"));
-                    pgdl.logText = Geoget.decodeZlib(logs.getBlob(logs.getColumnIndex("logtext")), buff);
-                    pgdl.type = Geoget.convertLogType(logs.getString(logs.getColumnIndex("type")));
+                    pgdl.logText = GeogetUtils.decodeZlib(logs.getBlob(logs.getColumnIndex("logtext")), buff);
+                    pgdl.type = GeogetUtils.convertLogType(logs.getString(logs.getColumnIndex("type")));
                     pgdls.add(pgdl);
                 }
                 logs.close();
@@ -148,7 +148,7 @@ public class DetailActivity extends Activity {
 
                 while (at.moveToNext()) {
                     if (at.getString(at.getColumnIndex("category")).equals("attribute")) { // is Attribute, no index in db, fuuuu
-                        PointGeocachingAttributes pga = new PointGeocachingAttributes(Geoget.convertAttribute(at.getString(at.getColumnIndex("value"))), Geoget.isAttributePositive(at.getString(at.getColumnIndex("value"))));
+                        PointGeocachingAttributes pga = new PointGeocachingAttributes(GeogetUtils.convertAttribute(at.getString(at.getColumnIndex("value"))), GeogetUtils.isAttributePositive(at.getString(at.getColumnIndex("value"))));
                         pgas.add(pga);
                     }
                 }
