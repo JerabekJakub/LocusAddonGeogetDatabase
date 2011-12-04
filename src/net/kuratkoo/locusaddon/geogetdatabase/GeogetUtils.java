@@ -6,7 +6,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 import menion.android.locus.addon.publiclib.geoData.PointGeocachingData;
 
-public class Geoget {
+public class GeogetUtils {
 
     private static final String TAG = "LocusAddonGeogetDatabase|Geoget";
 
