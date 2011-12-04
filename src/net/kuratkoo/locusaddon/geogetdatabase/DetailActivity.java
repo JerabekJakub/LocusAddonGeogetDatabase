@@ -100,7 +100,7 @@ public class DetailActivity extends Activity {
 
                 String lastUpdated = c.getString(c.getColumnIndex("dtupdate"));
                 gcData.lastUpdated = lastUpdated.substring(0, 4) + "-" + lastUpdated.substring(4, 6) + "-" + lastUpdated.substring(6, 8) + "T";
-                
+
                 String hidden = c.getString(c.getColumnIndex("dthidden"));
                 gcData.hidden = hidden.substring(0, 4) + "-" + hidden.substring(4, 6) + "-" + hidden.substring(6, 8) + "T";
                 c.close();
@@ -118,6 +118,9 @@ public class DetailActivity extends Activity {
                     pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
                     pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
                     pgdws.add(pgdw);
+                    if (!(pgdw.lat == 0 && pgdw.lon == 0) && Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype"))).equals(PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL)) {
+                        gcData.computed = true;
+                    }
                 }
                 wp.close();
                 gcData.waypoints = pgdws;
