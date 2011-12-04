@@ -75,7 +75,6 @@ public class DetailActivity extends Activity {
                         attachPath += "/";
                     }
                     File geocacheFilePath = new File(attachPath + gcData.cacheID.substring(gcData.cacheID.length() - 1) + "/" + gcData.cacheID);
-                    Log.d(TAG, attachPath + gcData.cacheID.substring(gcData.cacheID.length() - 1) + "/" + gcData.cacheID);
                     if (geocacheFilePath.exists() && geocacheFilePath.isDirectory() && geocacheFilePath.canRead()) {
                         filesDescription += "<b>" + getText(R.string.geoget_files) + ":</b>";
                         boolean first = true;
@@ -85,13 +84,10 @@ public class DetailActivity extends Activity {
                             } else {
                                 filesDescription += " | ";
                             }
-                            Log.d(TAG, "File: " + f.getAbsolutePath());
                             filesDescription += "<a href=\"file://" + f.getAbsolutePath() + "\">" + f.getName() + "</a>";
                         }
                         filesDescription += "<br /><hr /><br />";
                     }
-                } else {
-                    Log.d(TAG, "No files for " + gcData.cacheID);
                 }
                 gcData.shortDescription = filesDescription + Geoget.decodeZlib(c.getBlob(c.getColumnIndex("shortdesc")), buff);
                 gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));

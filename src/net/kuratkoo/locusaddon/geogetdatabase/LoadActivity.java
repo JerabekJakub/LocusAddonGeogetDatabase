@@ -117,8 +117,6 @@ public class LoadActivity extends Activity {
                 sql += " AND x > ? AND x < ? AND y > ? AND y < ?";
 
                 c = database.rawQuery(sql, cond);
-                Log.d(TAG, "SQL: " + sql);
-                Log.d(TAG, "Total: " + c.getCount());
 
                 /** Load GC codes **/
                 double max = 0;
@@ -135,10 +133,6 @@ public class LoadActivity extends Activity {
                     }
                 }
                 c.close();
-
-                Log.d(TAG, "Filter: " + gcCodes.size());
-                Log.d(TAG, "Max: " + max);
-                Log.d(TAG, "Radius: " + radius);
 
                 int count = 0;
                 int limit = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("limit", "0"));
@@ -266,7 +260,6 @@ public class LoadActivity extends Activity {
                 }
 
                 public void onFailed() {
-                    Log.d(TAG, "onFailed called");
                 }
             });
         }
