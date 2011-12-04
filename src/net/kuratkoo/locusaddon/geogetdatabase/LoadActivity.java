@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -36,8 +35,9 @@ public class LoadActivity extends Activity {
     private ProgressDialog progress;
     private ArrayList<PointsData> data;
     private File externalDir;
+    private Point point;
 
-    private class LoadAsyncTask extends AsyncTask<Intent, Integer, Boolean> {
+    private class LoadAsyncTask extends AsyncTask<Point, Integer, Exception> {
 
         @Override
         protected void onPreExecute() {
@@ -50,8 +50,14 @@ public class LoadActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
+        protected void onPostExecute(Exception ex) {
             progress.dismiss();
+
+            if (ex != null) {
+                Toast.makeText(LoadActivity.this, getString(R.string.unable_to_load_geocaches) + " (" + ex.getLocalizedMessage() + ")", Toast.LENGTH_LONG).show();
+                LoadActivity.this.finish();
+                return;
+            }
 
             String filePath = externalDir.getAbsolutePath();
             if (!filePath.endsWith("/")) {
@@ -79,156 +85,150 @@ public class LoadActivity extends Activity {
             }
         }
 
-        protected Boolean doInBackground(Intent... i) {
-            Intent intent = i[0];
-            if (LocusIntents.isIntentOnPointAction(intent)) {
-                try {
-                    Point pp = LocusIntents.handleIntentOnPointAction(intent);
-                    Location curr = pp.getLocation();
-                    PointsData pd = new PointsData("Geoget data");
-                    Float radius = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("radius", "1")) / 70;
+        protected Exception doInBackground(Point... pointSet) {
+            try {
+                Point pp = pointSet[0];
+                Location curr = pp.getLocation();
+                PointsData pd = new PointsData("Geoget data");
+                Float radius = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("radius", "1")) / 70;
 
-                    SQLiteDatabase database = SQLiteDatabase.openDatabase(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("db", ""), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-                    String[] cond = new String[]{
-                        String.valueOf(curr.getLatitude() - radius),
-                        String.valueOf(curr.getLatitude() + radius),
-                        String.valueOf(curr.getLongitude() - radius),
-                        String.valueOf(curr.getLongitude() + radius)
-                    };
-                    Cursor c;
-                    String sql = "SELECT x, y, id, author FROM geocache WHERE ";
-                    if (PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("disable", false)) {
-                        sql = sql + "cachestatus != 2";
-                    } else {
-                        sql = sql + "cachestatus = 0";
+                SQLiteDatabase database = SQLiteDatabase.openDatabase(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("db", ""), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+                String[] cond = new String[]{
+                    String.valueOf(curr.getLatitude() - radius),
+                    String.valueOf(curr.getLatitude() + radius),
+                    String.valueOf(curr.getLongitude() - radius),
+                    String.valueOf(curr.getLongitude() + radius)
+                };
+                Cursor c;
+                String sql = "SELECT x, y, id, author FROM geocache WHERE ";
+                if (PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("disable", false)) {
+                    sql = sql + "cachestatus != 2";
+                } else {
+                    sql = sql + "cachestatus = 0";
+                }
+
+                if (!PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("found", false)) {
+                    sql = sql + " AND dtfound = 0";
+                }
+
+                if (!PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("own", false)) {
+                    sql = sql + " AND author != \"" + PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("nick", "") + "\"";
+                }
+                sql += " AND x > ? AND x < ? AND y > ? AND y < ?";
+
+                c = database.rawQuery(sql, cond);
+                Log.d(TAG, "SQL: " + sql);
+                Log.d(TAG, "Total: " + c.getCount());
+
+                /** Load GC codes **/
+                double max = 0;
+                List<Pair> gcCodes = new ArrayList<Pair>();
+                while (c.moveToNext()) {
+                    Location loc = new Location(TAG);
+                    loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
+                    loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
+                    if (loc.distanceTo(curr) < Float.valueOf(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("radius", "1")) * 1000) {
+                        if (max < loc.getLongitude() - curr.getLongitude()) {
+                            max = loc.getLongitude() - curr.getLongitude();
+                        }
+                        gcCodes.add(new Pair(loc.distanceTo(curr), c.getString(c.getColumnIndex("id"))));
                     }
+                }
+                c.close();
 
-                    if (!PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("found", false)) {
-                        sql = sql + " AND dtfound = 0";
-                    }
+                Log.d(TAG, "Filter: " + gcCodes.size());
+                Log.d(TAG, "Max: " + max);
+                Log.d(TAG, "Radius: " + radius);
 
-                    if (!PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("own", false)) {
-                        sql = sql + " AND author != \"" + PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("nick", "") + "\"";
-                    }
-                    sql += " AND x > ? AND x < ? AND y > ? AND y < ?";
+                int count = 0;
+                int limit = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("limit", "0"));
 
-                    c = database.rawQuery(sql, cond);
-                    Log.d(TAG, "SQL: " + sql);
-                    Log.d(TAG, "Total: " + c.getCount());
+                if (limit > 0) {
+                    Collections.sort(gcCodes, new Comparator<Pair>() {
 
-                    /** Load GC codes **/
-                    double max = 0;
-                    List<Pair> gcCodes = new ArrayList<Pair>();
-                    while (c.moveToNext()) {
-                        Location loc = new Location(TAG);
-                        loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
-                        loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
-                        if (loc.distanceTo(curr) < Float.valueOf(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("radius", "1")) * 1000) {
-                            if (max < loc.getLongitude() - curr.getLongitude()) {
-                                max = loc.getLongitude() - curr.getLongitude();
-                            }
-                            gcCodes.add(new Pair(loc.distanceTo(curr), c.getString(c.getColumnIndex("id"))));
+                        public int compare(Pair p1, Pair p2) {
+                            return p1.distance.compareTo(p2.distance);
+                        }
+                    });
+                }
+
+                for (Pair pair : gcCodes) {
+                    if (limit > 0) {
+                        if (count >= limit) {
+                            break;
                         }
                     }
+                    String gcCode = pair.gcCode;
+                    publishProgress(++count);
+                    c = database.rawQuery("SELECT x, y, name, id, author, difficulty, terrain, country, state, comment, cachesize, cachetype, cachestatus, dtfound, dthidden, dtupdate FROM geocache WHERE id = ?", new String[]{gcCode});
+                    c.moveToNext();
+                    Location loc = new Location(TAG);
+                    loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
+                    loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
+                    Point p = new Point(c.getString(c.getColumnIndex("name")), loc);
+
+                    PointGeocachingData gcData = new PointGeocachingData();
+                    gcData.cacheID = c.getString(c.getColumnIndex("id"));
+                    gcData.name = c.getString(c.getColumnIndex("name"));
+                    gcData.owner = c.getString(c.getColumnIndex("author"));
+                    gcData.placedBy = c.getString(c.getColumnIndex("author"));
+                    gcData.difficulty = c.getFloat(c.getColumnIndex("difficulty"));
+                    gcData.terrain = c.getFloat(c.getColumnIndex("terrain"));
+                    gcData.country = c.getString(c.getColumnIndex("country"));
+                    gcData.state = c.getString(c.getColumnIndex("state"));
+                    gcData.notes = c.getString(c.getColumnIndex("comment"));
+                    gcData.container = Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
+                    gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
+                    gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
+                    gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
+                    gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
+                    gcData.computed = false;
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                    Date date = new Date();
+                    gcData.exported = dateFormat.format(date);
+
+                    String lastUpdated = c.getString(c.getColumnIndex("dtupdate"));
+                    gcData.lastUpdated = lastUpdated.substring(0, 4) + "-" + lastUpdated.substring(4, 6) + "-" + lastUpdated.substring(6, 8) + "T";
+
+                    String hidden = c.getString(c.getColumnIndex("dthidden"));
+                    gcData.hidden = hidden.substring(0, 4) + "-" + hidden.substring(4, 6) + "-" + hidden.substring(6, 8) + "T";
+
+
                     c.close();
 
-                    Log.d(TAG, "Filter: " + gcCodes.size());
-                    Log.d(TAG, "Max: " + max);
-                    Log.d(TAG, "Radius: " + radius);
+                    /** Add final waypoints to Geocache **/
+                    Cursor wp = database.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid FROM waypoint WHERE id = ? and wpttype = \"Final Location\"", new String[]{gcData.cacheID});
+                    ArrayList<PointGeocachingDataWaypoint> pgdws = new ArrayList<PointGeocachingDataWaypoint>();
 
-                    int count = 0;
-                    int limit = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("limit", "0"));
-
-                    if (limit > 0) {
-                        Collections.sort(gcCodes, new Comparator<Pair>() {
-
-                            public int compare(Pair p1, Pair p2) {
-                                return p1.distance.compareTo(p2.distance);
-                            }
-                        });
+                    while (wp.moveToNext()) {
+                        PointGeocachingDataWaypoint pgdw = new PointGeocachingDataWaypoint();
+                        pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
+                        pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
+                        pgdw.name = wp.getString(wp.getColumnIndex("name"));
+                        pgdw.type = PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL;
+                        pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
+                        pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
+                        pgdws.add(pgdw);
                     }
+                    wp.close();
+                    gcData.waypoints = pgdws;
 
-                    for (Pair pair : gcCodes) {
-                        if (limit > 0) {
-                            if (count >= limit) {
-                                break;
-                            }
-                        }
-                        String gcCode = pair.gcCode;
-                        publishProgress(++count);
-                        c = database.rawQuery("SELECT x, y, name, id, author, difficulty, terrain, country, state, comment, cachesize, cachetype, cachestatus, dtfound, dthidden, dtupdate FROM geocache WHERE id = ?", new String[]{gcCode});
-                        c.moveToNext();
-                        Location loc = new Location(TAG);
-                        loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
-                        loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
-                        Point p = new Point(c.getString(c.getColumnIndex("name")), loc);
+                    p.setGeocachingData(gcData);
+                    p.setExtraOnDisplay("net.kuratkoo.locusaddon.geogetdatabase", "net.kuratkoo.locusaddon.geogetdatabase.DetailActivity", "cacheId", gcData.cacheID);
+                    pd.addPoint(p);
 
-                        PointGeocachingData gcData = new PointGeocachingData();
-                        gcData.cacheID = c.getString(c.getColumnIndex("id"));
-                        gcData.name = c.getString(c.getColumnIndex("name"));
-                        gcData.owner = c.getString(c.getColumnIndex("author"));
-                        gcData.placedBy = c.getString(c.getColumnIndex("author"));
-                        gcData.difficulty = c.getFloat(c.getColumnIndex("difficulty"));
-                        gcData.terrain = c.getFloat(c.getColumnIndex("terrain"));
-                        gcData.country = c.getString(c.getColumnIndex("country"));
-                        gcData.state = c.getString(c.getColumnIndex("state"));
-                        gcData.notes = c.getString(c.getColumnIndex("comment"));
-                        gcData.container = Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
-                        gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
-                        gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
-                        gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
-                        gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
-                        gcData.archived = false;
-                        gcData.computed = false;
-
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-                        Date date = new Date();
-                        gcData.exported = dateFormat.format(date);
-
-                        String lastUpdated = c.getString(c.getColumnIndex("dtupdate"));
-                        gcData.lastUpdated = lastUpdated.substring(0, 4) + "-" + lastUpdated.substring(4, 6) + "-" + lastUpdated.substring(6, 8) + "T";
-
-                        String hidden = c.getString(c.getColumnIndex("dthidden"));
-                        gcData.hidden = hidden.substring(0, 4) + "-" + hidden.substring(4, 6) + "-" + hidden.substring(6, 8) + "T";
-
-
-                        c.close();
-
-                        /** Add final waypoints to Geocache **/
-                        Cursor wp = database.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid FROM waypoint WHERE id = ? and wpttype = \"Final Location\"", new String[]{gcData.cacheID});
-                        ArrayList<PointGeocachingDataWaypoint> pgdws = new ArrayList<PointGeocachingDataWaypoint>();
-
-                        while (wp.moveToNext()) {
-                            PointGeocachingDataWaypoint pgdw = new PointGeocachingDataWaypoint();
-                            pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
-                            pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
-                            pgdw.name = wp.getString(wp.getColumnIndex("name"));
-                            pgdw.type = PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL;
-                            pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
-                            pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
-                            pgdws.add(pgdw);
-                        }
-                        wp.close();
-                        gcData.waypoints = pgdws;
-
-                        p.setGeocachingData(gcData);
-                        p.setExtraOnDisplay("net.kuratkoo.locusaddon.geogetdatabase", "net.kuratkoo.locusaddon.geogetdatabase.DetailActivity", "cacheId", gcData.cacheID);
-                        pd.addPoint(p);
-
-                    }
-
-                    database.close();
-
-                    data = new ArrayList<PointsData>();
-                    data.add(pd);
-
-                    return true;
-                } catch (Exception e) {
-                    Log.w(TAG, e);
-                    return false;
                 }
+
+                database.close();
+
+                data = new ArrayList<PointsData>();
+                data.add(pd);
+
+                return null;
+            } catch (Exception e) {
+                return e;
             }
-            return false;
         }
     }
 
@@ -244,9 +244,33 @@ public class LoadActivity extends Activity {
         externalDir = Environment.getExternalStorageDirectory();
         if (externalDir == null || !(externalDir.exists())) {
             Toast.makeText(LoadActivity.this, R.string.no_external_storage, Toast.LENGTH_LONG).show();
+            finish();
             return;
         }
-        new LoadAsyncTask().execute(getIntent());
+
+        File fd = new File(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("db", ""));
+        if (!Geoget.isGeogetDatabase(fd)) {
+            Toast.makeText(LoadActivity.this, R.string.no_db_file, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        Intent fromIntent = getIntent();
+        if (LocusIntents.isIntentOnPointAction(fromIntent)) {
+            point = LocusIntents.handleIntentOnPointAction(fromIntent);
+        } else if (LocusIntents.isIntentMainFunction(fromIntent)) {
+            LocusIntents.handleIntentMainFunction(fromIntent, new LocusIntents.OnIntentMainFunction() {
+
+                public void onLocationReceived(boolean gpsEnabled, Location locGps, Location locMapCenter) {
+                    point = new Point("Map center", locMapCenter);
+                }
+
+                public void onFailed() {
+                    Log.d(TAG, "onFailed called");
+                }
+            });
+        }
+        new LoadAsyncTask().execute(point);
     }
 
     private class Pair {
