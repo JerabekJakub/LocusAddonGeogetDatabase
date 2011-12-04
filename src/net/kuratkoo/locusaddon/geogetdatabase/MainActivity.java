@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.text.Html;
 import android.text.Spanned;
@@ -27,6 +28,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
     private EditTextPreference radius;
     private EditTextPreference limit;
     private CheckBoxPreference own;
+    private Preference donate;
 
     @Override
     protected void onResume() {
@@ -43,11 +45,15 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         addPreferencesFromResource(R.xml.prefs);
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
+        donate = (Preference) getPreferenceScreen().findPreference("donate");
+        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=kuratkoo%40gmail%2ecom&lc=CZ&item_name=Locus%20-%20addon%20GeoGet%20Database&currency_code=USD"));
+        donate.setIntent(i);
+
         own = (CheckBoxPreference) getPreferenceScreen().findPreference("own");
 
         db = (EditTextPreference) getPreferenceScreen().findPreference("db");
         File fd = new File(db.getText());
-        db.setSummary(editFilePreferenceSummary(fd.exists() && fd.canRead() && fd.isFile(), db.getText(), getText(R.string.pref_db_sum)));
+        db.setSummary(editFilePreferenceSummary(Geoget.isGeogetDatabase(fd), db.getText(), getText(R.string.pref_db_sum)));
 
         attach = (EditTextPreference) getPreferenceScreen().findPreference("attach");
         File fa = new File(attach.getText());
@@ -77,14 +83,13 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         if (!own.isEnabled()) {
             own.setSummary(Html.fromHtml(getString(R.string.pref_own_sum) + " <b>" + getString(R.string.pref_own_fill) + "</b>"));
         }
-
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("db")) {
             String path = sharedPreferences.getString(key, "");
             File fd = new File(path);
-            db.setSummary(editFilePreferenceSummary(fd.exists() && fd.canRead() && fd.isFile(), path, getText(R.string.pref_db_sum)));
+            db.setSummary(editFilePreferenceSummary(Geoget.isGeogetDatabase(fd), path, getText(R.string.pref_db_sum)));
         }
 
         if (key.equals("attach")) {
