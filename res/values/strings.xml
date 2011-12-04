@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Locus - addon GeoGet Database</string>
+    <string name="app_name">GeoGet Database for Locus</string>
     <string name="pref_path">Path settings</string>
     <string name="pref_db_title">GeoGet database path</string>
     <string name="pref_db_sum">Path to database GeoGet file (*.db3 file)</string>
@@ -39,4 +39,10 @@
     <string name="update_it">Newer version of Locus required (>= 1.14.6)! Please update!</string>
     <string name="out_of_memory">Out of memory! Change filter to decrease geocache count!</string>
     <string name="no_external_storage">External storage (SD card) not found!</string>
+    <string name="no_db_file">GeoGet database not found! Set it!</string>
+    <string name="unable_to_load_geocaches">Unable to load geocaches!</string>
+    <string name="unable_to_load_detail">Unable to load geocache detail!</string>
+    <string name="pref_about">About</string>
+    <string name="pref_donate_title">Donate to development!</string>
+    <string name="pref_donate_sum">Do you like this addon? Do you want to support next development? Click and donate some money!</string>
 </resources>

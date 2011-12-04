@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Locus - addon GeoGet Database</string>
+    <string name="app_name">GeoGet Database for Locus</string>
     <string name="pref_path">Nastavení cest</string>
     <string name="pref_db_title">Databáze GeoGetu</string>
     <string name="pref_db_sum">Cesta k databázi GeoGetu (soubor *.db3)</string>
@@ -39,4 +39,10 @@
     <string name="update_it">Je požadována novější verze Locusu (>= 1.14.6)! Prosím, aktualizujte!</string>
     <string name="out_of_memory">Nedostatek paměti! Změntě filtr ke snížení počtu načítaných keší!</string>
     <string name="no_external_storage">Nebylo nalezeno externí úložiště (SD karta)!</string>
+    <string name="no_db_file">Nebyla nalezen soubor s GeoGet databází! Nastavte ji!</string>
+    <string name="unable_to_load_geocaches">Nepodařilo se načíst kešky!</string>
+    <string name="unable_to_load_detail">Nepodařilo se načíst detail kešky!</string>
+    <string name="pref_about">O aplikaci</string>
+    <string name="pref_donate_title">Přispěj na vývoj!</string>
+    <string name="pref_donate_sum">Líbí se ti addon a chtěl bys podpořit další vývoj? Klikni a přispěj pár kaček!</string>
 </resources>
