@@ -13,7 +13,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -191,8 +190,8 @@ public class LoadActivity extends Activity {
 
                     c.close();
 
-                    /** Add final waypoints to Geocache **/
-                    Cursor wp = database.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid FROM waypoint WHERE id = ? and wpttype = \"Final Location\"", new String[]{gcData.cacheID});
+                    /** Add waypoints to Geocache **/
+                    Cursor wp = database.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid FROM waypoint WHERE id = ?", new String[]{gcData.cacheID});
                     ArrayList<PointGeocachingDataWaypoint> pgdws = new ArrayList<PointGeocachingDataWaypoint>();
 
                     while (wp.moveToNext()) {
@@ -200,11 +199,11 @@ public class LoadActivity extends Activity {
                         pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
                         pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
                         pgdw.name = wp.getString(wp.getColumnIndex("name"));
-                        pgdw.type = PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL;
+                        pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
                         pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
                         pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
                         pgdws.add(pgdw);
-                        if (!(pgdw.lat == 0 && pgdw.lon == 0) ) {
+                        if (!(pgdw.lat == 0 && pgdw.lon == 0) && Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype"))).equals(PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL)) {
                             gcData.computed = true;
                         }
                     }
