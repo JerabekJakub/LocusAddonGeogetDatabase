@@ -99,12 +99,19 @@ public class LoadActivity extends Activity {
                     String.valueOf(curr.getLongitude() + radius)
                 };
                 Cursor c;
-                String sql = "SELECT x, y, id, author FROM geocache WHERE ";
+                String sql = "SELECT x, y, id, author FROM geocache WHERE (cachestatus = 0";
+
+                // Disable geocaches
                 if (PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("disable", false)) {
-                    sql = sql + "cachestatus != 2";
-                } else {
-                    sql = sql + "cachestatus = 0";
+                    sql = sql + " OR cachestatus = 1";
                 }
+
+                // Archived geocaches
+                if (PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("archive", false)) {
+                    sql = sql + " OR cachestatus = 2";
+                }
+
+                sql = sql + ") ";
 
                 if (!PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("found", false)) {
                     sql = sql + " AND dtfound = 0";

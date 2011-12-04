@@ -16,6 +16,8 @@
     <string name="pref_own_title">My own geocaches</string>
     <string name="pref_own_sum">Load my own geocaches to Locus.</string>
     <string name="pref_own_fill"> Fill Geocaching.com nick to enable.</string>
+    <string name="pref_archive_title">Archived geocaches</string>
+    <string name="pref_archive_sum">Load archived geocaches to Locus</string>
     <string name="pref_logs_title">Logs count</string>
     <string name="pref_logs_sum">Count of last logs, which Locus load from Geoget database</string>
     <string name="pref_logs_error">Count of logs must be number between 0 and 99</string>

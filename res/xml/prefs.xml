@@ -47,6 +47,12 @@
             android:summary="@string/pref_own_sum"
             android:key="own"
             />
+        <CheckBoxPreference
+            android:title="@string/pref_archive_title"
+            android:defaultValue="false"
+            android:summary="@string/pref_archive_sum"
+            android:key="archive"
+            />
         <EditTextPreference
             android:defaultValue="0"
             android:title="@string/pref_limit_title"
