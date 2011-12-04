@@ -12,7 +12,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="LoadActivity" android:label="@string/load_from_geoget" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        <activity 
+            android:name="LoadActivity"
+            android:label="@string/load_from_geoget"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            >
             <intent-filter>
                 <action android:name="menion.android.locus.ON_POINT_ACTION" />
                 <category android:name="android.intent.category.DEFAULT" />
