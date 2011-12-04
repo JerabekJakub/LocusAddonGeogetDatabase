@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 import java.io.File;
 import java.text.SimpleDateFormat;
