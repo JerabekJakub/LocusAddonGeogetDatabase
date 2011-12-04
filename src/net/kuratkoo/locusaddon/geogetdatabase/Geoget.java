@@ -1,5 +1,6 @@
 package net.kuratkoo.locusaddon.geogetdatabase;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
@@ -283,6 +284,14 @@ public class Geoget {
 
     public static Boolean isAttributePositive(String s) {
         if (s.endsWith("yes")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static Boolean isGeogetDatabase(File f) {
+        if (f.exists() && f.canRead() && f.isFile() && f.getName().endsWith("db3")) {
             return true;
         } else {
             return false;
