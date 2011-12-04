@@ -26,9 +26,17 @@ public class DetailActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         Intent intent = getIntent();
 
-        super.onCreate(savedInstanceState);
+        File fd = new File(PreferenceManager.getDefaultSharedPreferences(this).getString("db", ""));
+        if (!Geoget.isGeogetDatabase(fd)) {
+            Toast.makeText(this, R.string.no_db_file, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         if (intent.hasExtra("cacheId")) {
             String value = intent.getStringExtra("cacheId");
             try {
@@ -89,7 +97,6 @@ public class DetailActivity extends Activity {
                 gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
                 gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
                 gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
-                gcData.archived = false;
                 gcData.computed = false;
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -156,11 +163,12 @@ public class DetailActivity extends Activity {
                 Intent retIntent = new Intent();
                 retIntent.putExtra(LocusConst.EXTRA_POINT, p);
                 setResult(RESULT_OK, retIntent);
-                finish();
 
             } catch (Exception e) {
-                Toast.makeText(this, "Unable to read geoget db! " + e.getMessage(), Toast.LENGTH_LONG).show();
-                Log.w(TAG, e);
+                Toast.makeText(this, R.string.unable_to_load_detail, Toast.LENGTH_LONG).show();
+
+            } finally {
+                finish();
             }
         }
     }
