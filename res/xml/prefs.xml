@@ -72,4 +72,11 @@
             android:maxLength="2"
             />
     </PreferenceCategory>
+    <PreferenceCategory android:title="O aplikaci">
+         <Preference
+            android:key="donate"
+            android:title="@string/pref_donate_title"
+            android:summary="@string/pref_donate_sum"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>
