@@ -127,16 +127,12 @@ public class LoadActivity extends Activity {
                 Log.d(TAG, "Total: " + c.getCount());
 
                 /** Load GC codes **/
-                double max = 0;
                 List<Pair> gcCodes = new ArrayList<Pair>();
                 while (c.moveToNext()) {
                     Location loc = new Location(TAG);
                     loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
                     loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
                     if (loc.distanceTo(curr) < Float.valueOf(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("radius", "1")) * 1000) {
-                        if (max < loc.getLongitude() - curr.getLongitude()) {
-                            max = loc.getLongitude() - curr.getLongitude();
-                        }
                         gcCodes.add(new Pair(loc.distanceTo(curr), c.getString(c.getColumnIndex("id"))));
                     }
                 }
