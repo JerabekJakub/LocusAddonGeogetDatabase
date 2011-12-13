@@ -118,9 +118,6 @@ public class DetailActivity extends Activity {
                     pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
                     pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
                     pgdws.add(pgdw);
-                    if (!(pgdw.lat == 0 && pgdw.lon == 0) && GeogetUtils.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype"))).equals(PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL)) {
-                        gcData.computed = true;
-                    }
                 }
                 wp.close();
                 gcData.waypoints = pgdws;
