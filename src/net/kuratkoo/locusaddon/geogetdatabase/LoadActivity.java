@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -120,9 +121,10 @@ public class LoadActivity extends Activity {
                 if (!PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("own", false)) {
                     sql = sql + " AND author != \"" + PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("nick", "") + "\"";
                 }
-                sql += " AND x > ? AND x < ? AND y > ? AND y < ?";
+                sql += " AND CAST(x AS REAL) > ? AND CAST(x AS REAL) < ? AND CAST(y AS REAL) > ? AND CAST(y AS REAL) < ?";
 
                 c = database.rawQuery(sql, cond);
+                Log.d(TAG, "Total: " + c.getCount());
 
                 /** Load GC codes **/
                 double max = 0;
@@ -210,9 +212,6 @@ public class LoadActivity extends Activity {
                         pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
                         pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
                         pgdws.add(pgdw);
-                        if (!(pgdw.lat == 0 && pgdw.lon == 0) && GeogetUtils.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype"))).equals(PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL)) {
-                            gcData.computed = true;
-                        }
                     }
                     wp.close();
                     gcData.waypoints = pgdws;
