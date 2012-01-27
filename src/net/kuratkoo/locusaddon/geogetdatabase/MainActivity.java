@@ -31,16 +31,8 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
     private Preference donate;
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (!checkLocus()) return;
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (!checkLocus()) return;
 
         addPreferencesFromResource(R.xml.prefs);
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
@@ -165,37 +157,5 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         } else {
             return Html.fromHtml(summary.toString());
         }
-    }
-
-    private boolean checkLocus() {
-        if (!LocusUtils.isLocusAvailable(this)) {
-            AlertDialog.Builder ad = new AlertDialog.Builder(this);
-            ad.setIcon(android.R.drawable.ic_dialog_alert);
-            ad.setTitle(R.string.error);
-            ad.setMessage(R.string.install_it);
-            ad.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                public void onClick(DialogInterface arg0, int arg1) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + LocusUtils.getLocusDefaultPackageName(MainActivity.this))));
-                }
-            });
-            ad.show();
-            return false;
-        }
-
-        if ((LocusUtils.getLocusVersionCode(this) < 121 && !LocusUtils.isLocusProInstalled(this)) || (LocusUtils.getLocusVersionCode(this) < 59 && LocusUtils.isLocusProInstalled(this))) {
-            AlertDialog.Builder ad = new AlertDialog.Builder(this);
-            ad.setIcon(android.R.drawable.ic_dialog_alert);
-            ad.setTitle(R.string.error);
-            ad.setMessage(getString(R.string.update_it));
-            ad.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                public void onClick(DialogInterface arg0, int arg1) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + LocusUtils.getLocusDefaultPackageName(MainActivity.this))));
-                }
-            });
-            ad.show();
-            return false;
-        }
-
-        return true;
     }
 }
