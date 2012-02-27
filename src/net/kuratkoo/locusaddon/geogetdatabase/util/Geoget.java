@@ -1,4 +1,4 @@
-package net.kuratkoo.locusaddon.geogetdatabase;
+package net.kuratkoo.locusaddon.geogetdatabase.util;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -6,9 +6,13 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 import menion.android.locus.addon.publiclib.geoData.PointGeocachingData;
 
-public class GeogetUtils {
+/**
+ * Geoget
+ * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
+ */
+public class Geoget {
 
-    private static final String TAG = "LocusAddonGeogetDatabase|Geoget";
+    private static final String TAG = "LocusAddonGeogetDatabase|GeogetUtils";
 
     public static String decodeZlib(byte[] s, byte[] buff) throws DataFormatException, UnsupportedEncodingException {
         Inflater decompresser = new Inflater();
