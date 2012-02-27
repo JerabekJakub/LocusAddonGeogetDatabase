@@ -1,4 +1,4 @@
-package net.kuratkoo.locusaddon.geogetdatabase;
+package net.kuratkoo.locusaddon.geogetdatabase.backup;
 
 import android.app.backup.BackupAgentHelper;
 import android.app.backup.SharedPreferencesBackupHelper;
