@@ -111,7 +111,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
             if (value.equals("") || !value.matches("[0-9]+")) {
                 Toast.makeText(this, getString(R.string.pref_logs_error), Toast.LENGTH_LONG).show();
                 value = "20";
-                logsCount.setText("20");
+                logsCount.setText(value);
             }
             logsCount.setSummary(editPreferenceSummary(value, getText(R.string.pref_logs_sum)));
         }
@@ -121,7 +121,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
             if (value.equals("") || !value.matches("[0-9]+") || value.equals("0") || value.equals("00")) {
                 Toast.makeText(this, getString(R.string.pref_logs_error), Toast.LENGTH_LONG).show();
                 value = "1";
-                radius.setText("1");
+                radius.setText(value);
             }
             radius.setSummary(editPreferenceSummary(value + " km", getText(R.string.pref_radius_sum)));
         }
