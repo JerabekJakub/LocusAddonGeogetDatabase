@@ -1,5 +1,6 @@
 package net.kuratkoo.locusaddon.geogetdatabase;
 
+import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -29,6 +30,10 @@ import menion.android.locus.addon.publiclib.geoData.PointsData;
 import menion.android.locus.addon.publiclib.geoData.Point;
 import menion.android.locus.addon.publiclib.geoData.PointGeocachingDataWaypoint;
 
+/**
+ * LoadActivity
+ * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
+ */
 public class LoadActivity extends Activity {
 
     private static final String TAG = "LocusAddonGeogetDatabase|LoadActivity";
@@ -175,11 +180,11 @@ public class LoadActivity extends Activity {
                     gcData.country = c.getString(c.getColumnIndex("country"));
                     gcData.state = c.getString(c.getColumnIndex("state"));
                     gcData.notes = c.getString(c.getColumnIndex("comment"));
-                    gcData.container = GeogetUtils.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
-                    gcData.type = GeogetUtils.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
-                    gcData.available = GeogetUtils.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
-                    gcData.archived = GeogetUtils.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
-                    gcData.found = GeogetUtils.isFound(c.getInt(c.getColumnIndex("dtfound")));
+                    gcData.container = Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
+                    gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
+                    gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
+                    gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
+                    gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
                     gcData.computed = false;
 
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -204,7 +209,7 @@ public class LoadActivity extends Activity {
                         pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
                         pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
                         pgdw.name = wp.getString(wp.getColumnIndex("name"));
-                        pgdw.type = GeogetUtils.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
+                        pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
                         pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
                         pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
                         pgdws.add(pgdw);
@@ -247,7 +252,7 @@ public class LoadActivity extends Activity {
         }
 
         File fd = new File(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("db", ""));
-        if (!GeogetUtils.isGeogetDatabase(fd)) {
+        if (!Geoget.isGeogetDatabase(fd)) {
             Toast.makeText(LoadActivity.this, R.string.no_db_file, Toast.LENGTH_LONG).show();
             finish();
             return;
