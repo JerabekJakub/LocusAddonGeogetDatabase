@@ -1,8 +1,6 @@
 package net.kuratkoo.locusaddon.geogetdatabase;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
+import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -16,9 +14,12 @@ import android.text.Html;
 import android.text.Spanned;
 import android.widget.Toast;
 import java.io.File;
-import menion.android.locus.addon.publiclib.LocusUtils;
 
-public class MainActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+/**
+ * PreferencesActivity
+ * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
+ */
+public class PreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
     private static final String TAG = "LocusAddonGeogetDatabase|MainActivity";
     private EditTextPreference db;
@@ -45,7 +46,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
 
         db = (EditTextPreference) getPreferenceScreen().findPreference("db");
         File fd = new File(db.getText());
-        db.setSummary(editFilePreferenceSummary(GeogetUtils.isGeogetDatabase(fd), db.getText(), getText(R.string.pref_db_sum)));
+        db.setSummary(editFilePreferenceSummary(Geoget.isGeogetDatabase(fd), db.getText(), getText(R.string.pref_db_sum)));
 
         attach = (EditTextPreference) getPreferenceScreen().findPreference("attach");
         File fa = new File(attach.getText());
@@ -81,7 +82,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         if (key.equals("db")) {
             String path = sharedPreferences.getString(key, "");
             File fd = new File(path);
-            db.setSummary(editFilePreferenceSummary(GeogetUtils.isGeogetDatabase(fd), path, getText(R.string.pref_db_sum)));
+            db.setSummary(editFilePreferenceSummary(Geoget.isGeogetDatabase(fd), path, getText(R.string.pref_db_sum)));
         }
 
         if (key.equals("attach")) {
