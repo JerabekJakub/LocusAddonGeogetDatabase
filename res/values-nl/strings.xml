@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoGet Database voor Locus</string>
+    <string name="pref_path">Pad instellingen</string>
+    <string name="pref_db_title">GeoGet database pad</string>
+    <string name="pref_db_sum">Pad naar GeoGet database(*.db3 bestand)</string>
+    <string name="pref_attach_title">GeoGet pad met bijlagen</string>
+    <string name="pref_attach_sum">Niet verplicht. Pad naar GeoGet folder met geocache bijlagen (attach folder)</string>
+    <string name="pref_filter">Filter instellingen</string>
+    <string name="pref_nick_title">Naam op Geocaching.com</string>
+    <string name="pref_nick_sum">Om eigen caches te herkennen</string>
+    <string name="pref_disable_title">Geocaches uitschakelen</string>
+    <string name="pref_disable_sum">Laad uitgeschakelde geocaches in Locus</string>
+    <string name="pref_found_title">Gevonden geocaches</string>
+    <string name="pref_found_sum">Laad gevonden geocaches in Locus</string>
+    <string name="pref_own_title">Eigen geocaches</string>
+    <string name="pref_own_sum">Laad eigen geocaches in Locus.</string>
+    <string name="pref_own_fill"> Geef Geocaching.com naam op om te activeren.</string>
+    <string name="pref_archive_title">Gearchiveerde geocaches</string>
+    <string name="pref_archive_sum">Laad gearchiveerde geocaches in Locus</string>
+    <string name="pref_logs_title">Logs tellen</string>
+    <string name="pref_logs_sum">Aantal liga welke door Locust geladen worden uit de Geoget database</string>
+    <string name="pref_logs_error">Aantal logs moet zich tussen 0 en 99 bevinden</string>
+    <string name="pref_radius_title">Afstand radius</string>
+    <string name="pref_radius_sum">Afstand radius in km voor laden van geocaches in Locus</string>
+    <string name="pref_radius_error">Radius moet zich tussen 1 en 99 bevinden</string>
+    <string name="pref_limit_title">Aantal Geocaches</string>
+    <string name="pref_limit_sum">Aantal te laden geocaches. Bij waarde 0 wordt dit niet toegepast. (ongelimiteerd)</string>
+    <string name="pref_limit_nolimit">geen limiet</string>
+    <string name="pref_limit_error">Limiet moet zich tussen 0 (geen limiet) en 9999 bevinden</string>
+    <string name="pref_locus">Locus instellingen</string>
+    <string name="pref_import_title">Importeren toestaan</string>
+    <string name="pref_import_sum">Sta toe om geocaches te importeren in Locus</string>
+    <string name="geoget_files">GeoGet bestanden</string>
+    <string name="loading">Laden</string>
+    <string name="geocaches">geocaches</string>
+    <string name="loading_dots">Laden....</string>
+    <string name="load_from_geoget">Laad GeoGet geocaches</string>
+    <string name="error">Fout!</string>
+    <string name="install_it">Locus applicatie niet gevonden! Graag installeren!</string>
+    <string name="update_it">Nieuwere versie van Locus vereist (>= 1.14.6)! Graag updaten!</string>
+    <string name="out_of_memory">Buiten geheugenbereik! Pas filter aan om het aantal geocaches te limiteren!</string>
+    <string name="no_external_storage">Externe opslag(SD kaart) niet gevonden!</string>
+    <string name="no_db_file">GeoGet database niet gevonden! Stel deze in!</string>
+    <string name="unable_to_load_geocaches">Niet mogelijk om geocaches te laden!</string>
+    <string name="unable_to_load_detail">Niet mogelijk om geocache details te laden!</string>
+    <string name="pref_about">Over</string>
+    <string name="pref_donate_title">Doneer voor de ontwikkeling!</string>
+    <string name="pref_donate_sum">Vind u dit een handige add-on? Wilt u toekomstige ontwikkeling ondersteunen? Klik en doneer een bijdrage!</string>
+</resources>
