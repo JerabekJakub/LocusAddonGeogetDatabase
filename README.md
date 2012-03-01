@@ -20,3 +20,6 @@ https://market.android.com/details?id=net.kuratkoo.locusaddon.geogetdatabase
 ## Autor
 
 Radim -kuratkoo- Vaculik kuratkoo@gmail.com
+
+### Překlad
+* **Dutch** - Alexander 'dibrial' Nijborg
