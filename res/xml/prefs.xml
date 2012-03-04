@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:title="@string/app_name">
     <PreferenceCategory android:title="@string/pref_path">
-        <EditTextPreference
-            android:defaultValue="/sdcard/geoget.db3"
+        <Preference
             android:title="@string/pref_db_title"
-            android:key="db"
+            android:key="db_pick"
             android:summary="@string/pref_db_sum"
             />
-        <EditTextPreference
-            android:defaultValue="/sdcard/Geoget/data/attach/"
+        <Preference
             android:title="@string/pref_attach_title"
-            android:key="attach"
+            android:key="attach_pick"
             android:summary="@string/pref_attach_sum"
             />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_locus">
+        <CheckBoxPreference
+            android:title="@string/pref_livemap_title"
+            android:defaultValue="false"
+            android:summary="@string/pref_livemap_sum"
+            android:key="livemap"
+            />
         <CheckBoxPreference
             android:title="@string/pref_import_title"
             android:defaultValue="true"

@@ -4,6 +4,7 @@
     <string name="pref_path">Pad instellingen</string>
     <string name="pref_db_title">GeoGet database pad</string>
     <string name="pref_db_sum">Pad naar GeoGet database(*.db3 bestand)</string>
+    <string name="pref_db_pick_title">Selecteer het database bestand</string>
     <string name="pref_attach_title">GeoGet pad met bijlagen</string>
     <string name="pref_attach_sum">Niet verplicht. Pad naar GeoGet folder met geocache bijlagen (attach folder)</string>
     <string name="pref_filter">Filter instellingen</string>

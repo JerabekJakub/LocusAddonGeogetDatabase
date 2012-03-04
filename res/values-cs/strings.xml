@@ -4,6 +4,7 @@
     <string name="pref_path">Nastavení cest</string>
     <string name="pref_db_title">Databáze GeoGetu</string>
     <string name="pref_db_sum">Cesta k databázi GeoGetu (soubor *.db3)</string>
+    <string name="pref_db_pick_title">Vyberte soubor databáze</string>
     <string name="pref_attach_title">Přílohy keší z GeoGetu</string>
     <string name="pref_attach_sum">Nepovinné. Cesta ke GeoGet složce s přílohama (složka attach)</string>
     <string name="pref_filter">Nastavení filtru</string>

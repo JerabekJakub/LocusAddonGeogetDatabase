@@ -10,10 +10,12 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.widget.Toast;
 import java.io.File;
+import menion.android.locus.addon.publiclib.LocusUtils;
 
 /**
  * PreferencesActivity
@@ -21,9 +23,9 @@ import java.io.File;
  */
 public class PreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
-    private static final String TAG = "LocusAddonGeogetDatabase|MainActivity";
-    private EditTextPreference db;
-    private EditTextPreference attach;
+    private static final String TAG = "LocusAddonGeogetDatabase|PreferencesActivity";
+    private Preference dbPick;
+    private Preference attachPick;
     private EditTextPreference nick;
     private EditTextPreference logsCount;
     private EditTextPreference radius;
@@ -44,13 +46,25 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 
         own = (CheckBoxPreference) getPreferenceScreen().findPreference("own");
 
-        db = (EditTextPreference) getPreferenceScreen().findPreference("db");
-        File fd = new File(db.getText());
-        db.setSummary(editFilePreferenceSummary(Geoget.isGeogetDatabase(fd), db.getText(), getText(R.string.pref_db_sum)));
+        dbPick = (Preference) getPreferenceScreen().findPreference("db_pick");
+        dbPick.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
-        attach = (EditTextPreference) getPreferenceScreen().findPreference("attach");
-        File fa = new File(attach.getText());
-        attach.setSummary(editFilePreferenceSummary(fa.exists() && fa.canRead() && fa.isDirectory(), attach.getText(), getText(R.string.pref_attach_sum)));
+            public boolean onPreferenceClick(Preference pref) {
+                LocusUtils.intentPickFile(PreferencesActivity.this, 0, getText(R.string.pref_db_pick_title).toString(), new String[]{".db3"});
+                return true;
+            }
+        });
+        dbPick.setSummary(editPreferenceSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("db", ""), getText(R.string.pref_db_sum)));
+
+        attachPick = (Preference) getPreferenceScreen().findPreference("attach_pick");
+        attachPick.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+            public boolean onPreferenceClick(Preference pref) {
+                LocusUtils.intentPickDir(PreferencesActivity.this, 1);
+                return true;
+            }
+        });
+        attachPick.setSummary(editPreferenceSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("attach", ""), getText(R.string.pref_attach_sum)));
 
         nick = (EditTextPreference) getPreferenceScreen().findPreference("nick");
         nick.setSummary(editPreferenceSummary(nick.getText(), getText(R.string.pref_nick_sum)));
@@ -80,19 +94,9 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("db")) {
-            String path = sharedPreferences.getString(key, "");
-            File fd = new File(path);
-            db.setSummary(editFilePreferenceSummary(Geoget.isGeogetDatabase(fd), path, getText(R.string.pref_db_sum)));
         }
 
         if (key.equals("attach")) {
-            String path = sharedPreferences.getString(key, "");
-            if (!path.endsWith("/")) {
-                path += "/";
-            }
-            attach.setText(path);
-            File fa = new File(path);
-            attach.setSummary(editFilePreferenceSummary(fa.exists() && fa.canRead() && fa.isDirectory(), path, getText(R.string.pref_attach_sum)));
         }
 
         if (key.equals("nick")) {
@@ -148,15 +152,30 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
         }
     }
 
-    private Spanned editFilePreferenceSummary(boolean b, String value, CharSequence summary) {
-        if (!value.equals("")) {
-            if (b) {
-                return Html.fromHtml("<font color=\"#00FF00\"><b>(OK)</b></font> <font color=\"#FF8000\"><b>(" + value + ")</b></font> " + summary);
-            } else {
-                return Html.fromHtml("<font color=\"#FF0000\"><b>(KO)</b></font> <font color=\"#FF8000\"><b>(" + value + ")</b></font> " + summary);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        if (requestCode == 0) {
+            if (resultCode == RESULT_OK && data != null) {
+                String filename = data.getData().toString().replace("file://", "");
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("db", filename);
+                editor.commit();
+                dbPick.setSummary(editPreferenceSummary(filename, getText(R.string.pref_db_sum)));
             }
-        } else {
-            return Html.fromHtml(summary.toString());
+        } else if (requestCode == 1) {
+            if (resultCode == RESULT_OK && data != null) {
+                String path = data.getData().toString().replace("file://", "");
+                if (!path.endsWith("/")) {
+                    path += "/";
+                }
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("attach", path);
+                editor.commit();
+                attachPick.setSummary(editPreferenceSummary(path, getText(R.string.pref_db_sum)));
+
+            }
         }
     }
 }
