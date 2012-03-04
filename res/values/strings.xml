@@ -5,6 +5,7 @@
     <string name="pref_db_title">GeoGet database path</string>
     <string name="pref_db_sum">Path to database GeoGet file (*.db3 file)</string>
     <string name="pref_db_pick_title">Pick database file</string>
+    <string name="pref_db_pick_dir_title">Pick GeoGet attach dir</string>
     <string name="pref_attach_title">GeoGet path with attachments</string>
     <string name="pref_attach_sum">Not required. Path to GeoGet folder with geocache attachments (attach folder)</string>
     <string name="pref_filter">Filter settings</string>

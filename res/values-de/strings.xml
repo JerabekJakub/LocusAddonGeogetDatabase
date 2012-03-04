@@ -5,6 +5,7 @@
     <string name="pref_db_title">GeoGet Datenbankpfad</string>
     <string name="pref_db_sum">Speicherort der GeoGet Datenbank (*.db3 Datei)</string>
     <string name="pref_db_pick_title">Wählen Sie die Datenbank Datei</string>
+    <string name="pref_db_pick_dir_title">Wählen Sie den Ordner mit Anlagen GeoGet</string>
     <string name="pref_attach_title">GeoGet Pfad mit Zusatzfunktionen</string>
     <string name="pref_attach_sum">Nicht benötigt. Pfad zum GeoGet Ordner mit Geocachezusatzfunktionen</string>
     <string name="pref_filter">Filtereinstellungen</string>
