@@ -22,4 +22,6 @@ https://market.android.com/details?id=net.kuratkoo.locusaddon.geogetdatabase
 Radim -kuratkoo- Vaculik kuratkoo@gmail.com
 
 ### Překlad
-* **Dutch** - Alexander 'dibrial' Nijborg
+
+* **German** - Christoph 'Leedrag' Kuchel leedrag@web.de
+* **Dutch** - Alexander 'dibrial' Nijborg anijborg@aol.nl
