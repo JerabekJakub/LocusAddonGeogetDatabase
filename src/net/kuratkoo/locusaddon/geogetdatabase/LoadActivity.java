@@ -29,6 +29,7 @@ import menion.android.locus.addon.publiclib.geoData.PointGeocachingData;
 import menion.android.locus.addon.publiclib.geoData.PointsData;
 import menion.android.locus.addon.publiclib.geoData.Point;
 import menion.android.locus.addon.publiclib.geoData.PointGeocachingDataWaypoint;
+import menion.android.locus.addon.publiclib.utils.RequiredVersionMissingException;
 
 /**
  * LoadActivity
@@ -87,6 +88,7 @@ public class LoadActivity extends Activity {
                     }
                 });
                 ad.show();
+            } catch (RequiredVersionMissingException rvme) {
             }
         }
 
