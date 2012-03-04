@@ -60,7 +60,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
         attachPick.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
             public boolean onPreferenceClick(Preference pref) {
-                LocusUtils.intentPickDir(PreferencesActivity.this, 1, getText(R.string.pref_db_pick_dir_title));
+                LocusUtils.intentPickDir(PreferencesActivity.this, 1, getText(R.string.pref_db_pick_dir_title).toString());
                 return true;
             }
         });
