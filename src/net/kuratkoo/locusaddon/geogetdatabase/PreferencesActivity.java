@@ -1,6 +1,9 @@
 package net.kuratkoo.locusaddon.geogetdatabase;
 
-import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -13,8 +16,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
-import java.io.File;
 import menion.android.locus.addon.publiclib.LocusUtils;
 
 /**
@@ -89,6 +93,42 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 
         if (!own.isEnabled()) {
             own.setSummary(Html.fromHtml(getString(R.string.pref_own_sum) + " <b>" + getString(R.string.pref_own_fill) + "</b>"));
+        }
+
+        if (PreferenceManager.getDefaultSharedPreferences(this).getInt("count", 0) == 3) {
+            LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+            View dialog = inflater.inflate(R.layout.dialog_rate, null);
+
+            Builder d = new AlertDialog.Builder(this);
+            d.setTitle(R.string.support_app);
+            d.setIcon(R.drawable.ic_launcher);
+            d.setPositiveButton(android.R.string.ok, new OnClickListener() {
+
+                public void onClick(DialogInterface di, int arg1) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getClass().getPackage().getName())));
+                }
+
+            });
+            d.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+
+                public void onClick(DialogInterface di, int arg1) {
+                    di.dismiss();
+                }
+            });
+            d.setView(dialog);
+            d.show();
+
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt("count", 4);
+            editor.commit();
+        }
+
+        if (PreferenceManager.getDefaultSharedPreferences(this).getInt("count", 0) < 3) {
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt("count", PreferenceManager.getDefaultSharedPreferences(this).getInt("count", 0) + 1);
+            editor.commit();
         }
     }
 
