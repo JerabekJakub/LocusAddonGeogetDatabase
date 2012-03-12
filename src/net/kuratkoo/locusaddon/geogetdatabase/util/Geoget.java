@@ -1,7 +1,11 @@
 package net.kuratkoo.locusaddon.geogetdatabase.util;
 
+import android.content.SharedPreferences;
+import android.util.Log;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 import menion.android.locus.addon.publiclib.geoData.PointGeocachingData;
@@ -300,5 +304,45 @@ public class Geoget {
         } else {
             return false;
         }
+    }
+
+    public static List<String> geocacheTypesFromFilter(SharedPreferences sharedPref) {
+        List<String> geocacheTypes = new ArrayList<String>();
+
+        if (sharedPref.getBoolean("gc_type_tradi", false)) {
+            geocacheTypes.add("Traditional Cache");
+        }
+        if (sharedPref.getBoolean("gc_type_multi", false)) {
+            geocacheTypes.add("Multi-cache");
+        }
+        if (sharedPref.getBoolean("gc_type_mystery", false)) {
+            geocacheTypes.add("Unknown Cache");
+        }
+        if (sharedPref.getBoolean("gc_type_earth", false)) {
+            geocacheTypes.add("Earthcache");
+        }
+        if (sharedPref.getBoolean("gc_type_letter", false)) {
+            geocacheTypes.add("Letterbox Hybrid");
+        }
+        if (sharedPref.getBoolean("gc_type_event", false)) {
+            geocacheTypes.add("Event Cache");
+        }
+        if (sharedPref.getBoolean("gc_type_cito", false)) {
+            geocacheTypes.add("Cache In Trash Out Event");
+        }
+        if (sharedPref.getBoolean("gc_type_mega", false)) {
+            geocacheTypes.add("Mega-Event Cache");
+        }
+        if (sharedPref.getBoolean("gc_type_wig", false)) {
+            geocacheTypes.add("Wherigo Cache");
+        }
+        if (sharedPref.getBoolean("gc_type_virtual", false)) {
+            geocacheTypes.add("Virtual Cache");
+        }
+        if (sharedPref.getBoolean("gc_type_webcam", false)) {
+            geocacheTypes.add("Webcam Cache");
+        }
+
+        return geocacheTypes;
     }
 }

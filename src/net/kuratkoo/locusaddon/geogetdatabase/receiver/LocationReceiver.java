@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import menion.android.locus.addon.publiclib.DisplayData;
 import menion.android.locus.addon.publiclib.PeriodicUpdate;
 import menion.android.locus.addon.publiclib.PeriodicUpdate.UpdateContainer;
@@ -101,6 +102,22 @@ public class LocationReceiver extends BroadcastReceiver {
                 if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("own", false)) {
                     sql = sql + " AND author != \"" + PreferenceManager.getDefaultSharedPreferences(context).getString("nick", "") + "\"";
                 }
+
+                List<String> geocacheTypes = Geoget.geocacheTypesFromFilter(PreferenceManager.getDefaultSharedPreferences(context));
+                boolean first = true;
+                String sqlType = "";
+                for (String geocacheType : geocacheTypes) {
+                    if (first) {
+                        sqlType += "cachetype = \"" + geocacheType + "\"";
+                        first = false;
+                    } else {
+                        sqlType += " OR cachetype = \"" + geocacheType + "\"";
+                    }
+                }
+                if (!sqlType.isEmpty()) {
+                    sql += "AND (" + sqlType + ")";
+                }
+
                 sql += " AND CAST(x AS REAL) > ? AND CAST(x AS REAL) < ? AND CAST(y AS REAL) > ? AND CAST(y AS REAL) < ?";
 
                 Cursor c = db.rawQuery(sql, cond);

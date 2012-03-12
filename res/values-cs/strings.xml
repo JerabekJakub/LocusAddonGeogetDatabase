@@ -9,6 +9,8 @@
     <string name="pref_attach_title">Přílohy keší z GeoGetu</string>
     <string name="pref_attach_sum">Nepovinné. Cesta ke GeoGet složce s přílohama (složka attach)</string>
     <string name="pref_filter">Nastavení filtru</string>
+    <string name="pref_type_screen_title">Geocache typ</string>
+    <string name="pref_type_screen_sum">Budou filtrovány pouze zatrhlé keše</string>
     <string name="pref_nick_title">Uživatelské jméno na Geocaching.com</string>
     <string name="pref_nick_sum">Pro rozpoznání vlastních keší</string>
     <string name="pref_disable_title">Neaktivní (disable) keše</string>

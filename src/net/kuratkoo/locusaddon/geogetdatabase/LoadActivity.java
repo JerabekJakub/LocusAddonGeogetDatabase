@@ -128,6 +128,22 @@ public class LoadActivity extends Activity {
                 if (!PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("own", false)) {
                     sql = sql + " AND author != \"" + PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("nick", "") + "\"";
                 }
+
+                List<String> geocacheTypes = Geoget.geocacheTypesFromFilter(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this));
+                boolean first = true;
+                String sqlType = "";
+                for (String geocacheType : geocacheTypes) {
+                    if (first) {
+                        sqlType += "cachetype = \"" + geocacheType + "\"";
+                        first = false;
+                    } else {
+                        sqlType += " OR cachetype = \"" + geocacheType + "\"";
+                    }
+                }
+                if (!sqlType.isEmpty()) {
+                    sql += "AND (" + sqlType + ")";
+                }
+                
                 sql += " AND CAST(x AS REAL) > ? AND CAST(x AS REAL) < ? AND CAST(y AS REAL) > ? AND CAST(y AS REAL) < ?";
 
                 c = database.rawQuery(sql, cond);
