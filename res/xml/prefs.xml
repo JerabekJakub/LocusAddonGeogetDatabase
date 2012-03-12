@@ -97,42 +97,6 @@
                 android:key="gc_type_webcam"
                 android:icon="@drawable/gc_type_webcam"
                 />
-            <CheckBoxPreference
-                android:title="@string/pref_type_loc"
-                android:defaultValue="true"
-                android:key="gc_type_loc"
-                android:icon="@drawable/gc_type_loc"
-                />
-            <CheckBoxPreference
-                android:title="@string/pref_type_hq"
-                android:defaultValue="true"
-                android:key="gc_type_hq"
-                android:icon="@drawable/gc_type_hq"
-                />
-            <CheckBoxPreference
-                android:title="@string/pref_type_gps"
-                android:defaultValue="true"
-                android:key="gc_type_gps"
-                android:icon="@drawable/gc_type_gps"
-                />
-            <CheckBoxPreference
-                android:title="@string/pref_type_10years"
-                android:defaultValue="true"
-                android:key="gc_type_10years"
-                android:icon="@drawable/gc_type_10years"
-                />
-            <CheckBoxPreference
-                android:title="@string/pref_type_benchmark"
-                android:defaultValue="true"
-                android:key="gc_type_benchmark"
-                android:icon="@drawable/gc_type_benchmark"
-                />
-            <CheckBoxPreference
-                android:title="@string/pref_type_ape"
-                android:defaultValue="true"
-                android:key="gc_type_ape"
-                android:icon="@drawable/gc_type_ape"
-                />
         </PreferenceScreen>
         <EditTextPreference
             android:defaultValue=""
