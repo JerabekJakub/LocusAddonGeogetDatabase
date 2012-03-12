@@ -9,6 +9,8 @@
     <string name="pref_attach_title">GeoGet pad met bijlagen</string>
     <string name="pref_attach_sum">Niet verplicht. Pad naar GeoGet folder met geocache bijlagen (attach folder)</string>
     <string name="pref_filter">Filter instellingen</string>
+    <string name="pref_type_screen_title">Geocache type</string>
+    <string name="pref_type_screen_sum">Filter geselecteerde types</string>
     <string name="pref_nick_title">Naam op Geocaching.com</string>
     <string name="pref_nick_sum">Om eigen caches te herkennen</string>
     <string name="pref_disable_title">Geocaches uitschakelen</string>
@@ -51,7 +53,7 @@
     <string name="pref_about">Over</string>
     <string name="pref_donate_title">Doneer voor de ontwikkeling!</string>
     <string name="pref_donate_sum">Vind u dit een handige add-on? Wilt u toekomstige ontwikkeling ondersteunen? Klik en doneer een bijdrage!</string>
-    <string name="support_app">Ondersteuning GeoGet Database voor Locus</string>
-    <string name="support_like_it">Hou je van de applicatie GeoGet Database voor Locus?</string>
-    <string name="support_rate">Gelieve waarderen de ontwikkelaars het toevoegen van een 5-sterren in de Android Market.</string>
+    <string name="support_app">Ondersteun GeoGet Database voor Locus</string>
+    <string name="support_like_it">Bevalt GeoGet Database voor Locus u goed?</string>
+    <string name="support_rate">Geef de ontwikkelaars een 5-sterren waardering in Android Market.</string>
 </resources>
