@@ -140,7 +140,7 @@ public class LoadActivity extends Activity {
                         sqlType += " OR cachetype = \"" + geocacheType + "\"";
                     }
                 }
-                if (!sqlType.isEmpty()) {
+                if (!sqlType.equals("")) {
                     sql += " AND (" + sqlType + ")";
                 }
                 
