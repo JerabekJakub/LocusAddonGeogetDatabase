@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import menion.android.locus.addon.publiclib.PeriodicUpdate;
 import menion.android.locus.addon.publiclib.PeriodicUpdate.UpdateContainer;
 import menion.android.locus.addon.publiclib.geoData.Point;
 import menion.android.locus.addon.publiclib.geoData.PointGeocachingData;
+import menion.android.locus.addon.publiclib.geoData.PointGeocachingDataWaypoint;
 import menion.android.locus.addon.publiclib.geoData.PointsData;
 import menion.android.locus.addon.publiclib.utils.RequiredVersionMissingException;
 import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
@@ -44,7 +46,8 @@ public class LocationReceiver extends BroadcastReceiver {
         pu.onReceive(context, intent, new PeriodicUpdate.OnUpdate() {
 
             public void onUpdate(UpdateContainer update) {
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("livemap", false)) {
+                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("livemap", false)
+                    && !PreferenceManager.getDefaultSharedPreferences(context).getString("db", "").equals("")) {
                     if ((update.newMapCenter || update.newZoomLevel) && update.mapVisible) {
                         Log.d(TAG, "Live map update");
                         new MapLoadAsyncTask().execute(update);
@@ -60,17 +63,17 @@ public class LocationReceiver extends BroadcastReceiver {
     private class MapLoadAsyncTask extends AsyncTask<UpdateContainer, Integer, Exception> {
 
         private PointsData pd;
-        private SQLiteDatabase db;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            db = SQLiteDatabase.openDatabase(PreferenceManager.getDefaultSharedPreferences(context).getString("db", ""), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+            
         }
 
         @Override
         protected Exception doInBackground(UpdateContainer... updateSet) {
             try {
+                SQLiteDatabase db = SQLiteDatabase.openDatabase(PreferenceManager.getDefaultSharedPreferences(context).getString("db", ""), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
                 UpdateContainer update = updateSet[0];
                 pd = new PointsData("Livemap data");
 
@@ -137,11 +140,28 @@ public class LocationReceiver extends BroadcastReceiver {
                     gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
                     gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
 
+                    /** Add waypoints to Geocache **/
+                    Cursor wp = db.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid FROM waypoint WHERE id = ?", new String[]{gcData.cacheID});
+                    ArrayList<PointGeocachingDataWaypoint> pgdws = new ArrayList<PointGeocachingDataWaypoint>();
+
+                    while (wp.moveToNext()) {
+                        PointGeocachingDataWaypoint pgdw = new PointGeocachingDataWaypoint();
+                        pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
+                        pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
+                        pgdw.name = wp.getString(wp.getColumnIndex("name"));
+                        pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
+                        pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
+                        pgdws.add(pgdw);
+                    }
+                    wp.close();
+                    gcData.waypoints = pgdws;
+
                     p.setGeocachingData(gcData);
                     p.setExtraOnDisplay("net.kuratkoo.locusaddon.geogetdatabase", "net.kuratkoo.locusaddon.geogetdatabase.DetailActivity", "cacheId", gcData.cacheID);
                     pd.addPoint(p);
                 }
                 c.close();
+                db.close();
 
             } catch (Exception ex) {
                 return ex;
@@ -155,11 +175,10 @@ public class LocationReceiver extends BroadcastReceiver {
 
             if (exception != null) {
                 Log.w(TAG, exception);
+                Toast.makeText(context, "Error: " + exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
 
             try {
-                db.close();
-
                 File externalDir = Environment.getExternalStorageDirectory();
                 String filePath = externalDir.getAbsolutePath();
                 if (!filePath.endsWith("/")) {
