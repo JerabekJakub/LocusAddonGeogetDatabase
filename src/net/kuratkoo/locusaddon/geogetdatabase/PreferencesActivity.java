@@ -2,6 +2,7 @@ package net.kuratkoo.locusaddon.geogetdatabase;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -54,7 +55,11 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
         dbPick.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
             public boolean onPreferenceClick(Preference pref) {
-                LocusUtils.intentPickFile(PreferencesActivity.this, 0, getText(R.string.pref_db_pick_title).toString(), new String[]{".db3"});
+                try {
+                    LocusUtils.intentPickFile(PreferencesActivity.this, 0, getText(R.string.pref_db_pick_title).toString(), new String[]{".db3"});
+                } catch (ActivityNotFoundException anfe) {
+                    Toast.makeText(PreferencesActivity.this, "Error: " + anfe.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                }
                 return true;
             }
         });
