@@ -69,7 +69,11 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         attachPick.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
             public boolean onPreferenceClick(Preference pref) {
-                LocusUtils.intentPickDir(MainActivity.this, 1, getText(R.string.pref_db_pick_dir_title).toString());
+                try {
+                    LocusUtils.intentPickDir(MainActivity.this, 1, getText(R.string.pref_db_pick_dir_title).toString());
+                } catch (ActivityNotFoundException anfe) {
+                    Toast.makeText(MainActivity.this, "Error: " + anfe.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                }
                 return true;
             }
         });
