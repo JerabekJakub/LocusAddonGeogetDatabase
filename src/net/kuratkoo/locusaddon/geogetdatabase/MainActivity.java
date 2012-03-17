@@ -23,12 +23,12 @@ import android.widget.Toast;
 import menion.android.locus.addon.publiclib.LocusUtils;
 
 /**
- * PreferencesActivity
+ * MainActivity
  * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
  */
-public class PreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class MainActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
-    private static final String TAG = "LocusAddonGeogetDatabase|PreferencesActivity";
+    private static final String TAG = "LocusAddonGeogetDatabase|MainActivity";
     private Preference dbPick;
     private Preference attachPick;
     private EditTextPreference nick;
@@ -56,9 +56,9 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 
             public boolean onPreferenceClick(Preference pref) {
                 try {
-                    LocusUtils.intentPickFile(PreferencesActivity.this, 0, getText(R.string.pref_db_pick_title).toString(), new String[]{".db3"});
+                    LocusUtils.intentPickFile(MainActivity.this, 0, getText(R.string.pref_db_pick_title).toString(), new String[]{".db3"});
                 } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(PreferencesActivity.this, "Error: " + anfe.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Error: " + anfe.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                 }
                 return true;
             }
@@ -69,7 +69,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
         attachPick.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
             public boolean onPreferenceClick(Preference pref) {
-                LocusUtils.intentPickDir(PreferencesActivity.this, 1, getText(R.string.pref_db_pick_dir_title).toString());
+                LocusUtils.intentPickDir(MainActivity.this, 1, getText(R.string.pref_db_pick_dir_title).toString());
                 return true;
             }
         });
