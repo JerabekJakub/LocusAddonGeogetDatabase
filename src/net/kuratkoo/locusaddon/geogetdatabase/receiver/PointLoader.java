@@ -229,8 +229,8 @@ public class PointLoader {
                 ArrayList<PointsData> data = new ArrayList<PointsData>();
                 data.add(pd);
                 DisplayData.sendDataFileSilent(context, data, filePath, true);
-            } catch (RequiredVersionMissingException ex) {
-                Toast.makeText(context, "Error: " + ex.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            } catch (RequiredVersionMissingException rvme) {
+                Toast.makeText(context, "Error: " + rvme.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
         }
 
