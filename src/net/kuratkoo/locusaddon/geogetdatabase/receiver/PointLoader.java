@@ -84,11 +84,12 @@ public class PointLoader {
     private class MapLoadAsyncTask extends AsyncTask<UpdateContainer, Integer, Exception> {
 
         private PointsData pd;
+        private SQLiteDatabase db;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
+            db = SQLiteDatabase.openDatabase(PreferenceManager.getDefaultSharedPreferences(context).getString("db", ""), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
         }
 
         @Override
@@ -97,7 +98,7 @@ public class PointLoader {
                 if (this.isCancelled()) {
                     return null;
                 }
-                SQLiteDatabase db = SQLiteDatabase.openDatabase(PreferenceManager.getDefaultSharedPreferences(context).getString("db", ""), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+
                 UpdateContainer update = updateSet[0];
                 pd = new PointsData("Livemap data");
 
@@ -195,7 +196,6 @@ public class PointLoader {
                     pd.addPoint(p);
                 }
                 c.close();
-                db.close();
 
                 if (this.isCancelled()) {
                     return null;
@@ -210,6 +210,9 @@ public class PointLoader {
         @Override
         protected void onPostExecute(Exception exception) {
             super.onPostExecute(exception);
+            Log.d(TAG, "onPostExecute");
+            
+            db.close();
             if (exception != null) {
                 Log.w(TAG, exception);
                 Toast.makeText(context, "Error: " + exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
@@ -234,6 +237,8 @@ public class PointLoader {
         @Override
         protected void onCancelled() {
             super.onCancelled();
+            Log.d(TAG, "onCancelled");
+            db.close();
         }
     }
 }
