@@ -151,11 +151,13 @@ public class PointLoader {
                 Cursor c = db.rawQuery(sql, cond);
 
                 if (this.isCancelled()) {
+                    c.close();
                     return null;
                 }
 
                 while (c.moveToNext()) {
                     if (this.isCancelled()) {
+                        c.close();
                         return null;
                     }
                     Location loc = new Location(TAG);
@@ -178,6 +180,7 @@ public class PointLoader {
 
                     while (wp.moveToNext()) {
                         if (this.isCancelled()) {
+                            wp.close();
                             return null;
                         }
                         PointGeocachingDataWaypoint pgdw = new PointGeocachingDataWaypoint();
