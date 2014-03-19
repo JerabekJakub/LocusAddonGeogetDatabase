@@ -1,5 +1,8 @@
 package net.kuratkoo.locusaddon.geogetdatabase;
 
+import java.net.URLDecoder;
+
+import locus.api.android.ActionTools;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.ActivityNotFoundException;
@@ -20,15 +23,16 @@ import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
-import menion.android.locus.addon.publiclib.LocusUtils;
 
 /**
  * MainActivity
  * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
+ * @author Jakub Jerabek <jerabek.jakub@gmail.com> since 2014-02
  */
 public class MainActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
-    private static final String TAG = "LocusAddonGeogetDatabase|MainActivity";
+    @SuppressWarnings("unused")
+	private static final String TAG = "LocusAddonGeogetDatabase|MainActivity";
     private Preference dbPick;
     private Preference attachPick;
     private EditTextPreference nick;
@@ -38,7 +42,8 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
     private CheckBoxPreference own;
     private Preference donate;
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -56,21 +61,21 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
 
             public boolean onPreferenceClick(Preference pref) {
                 try {
-                    LocusUtils.intentPickFile(MainActivity.this, 0, getText(R.string.pref_db_pick_title).toString(), new String[]{".db3"});
+                	ActionTools.actionPickFile(MainActivity.this, 0, getText(R.string.pref_db_pick_title).toString(), new String[] {".db3"});
                 } catch (ActivityNotFoundException anfe) {
                     Toast.makeText(MainActivity.this, "Error: " + anfe.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                 }
                 return true;
             }
         });
-        dbPick.setSummary(editPreferenceSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("db", ""), getText(R.string.pref_db_sum)));
+        dbPick.setSummary(editPreferenceSummary(URLDecoder.decode(PreferenceManager.getDefaultSharedPreferences(this).getString("db", "")), getText(R.string.pref_db_sum)));
 
         attachPick = (Preference) getPreferenceScreen().findPreference("attach_pick");
         attachPick.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
             public boolean onPreferenceClick(Preference pref) {
                 try {
-                    LocusUtils.intentPickDir(MainActivity.this, 1, getText(R.string.pref_db_pick_dir_title).toString());
+    				ActionTools.actionPickDir(MainActivity.this, 1, getText(R.string.pref_db_pick_dir_title).toString());
                 } catch (ActivityNotFoundException anfe) {
                     Toast.makeText(MainActivity.this, "Error: " + anfe.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                 }
@@ -139,6 +144,12 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
             editor.putInt("count", PreferenceManager.getDefaultSharedPreferences(this).getInt("count", 0) + 1);
             editor.commit();
         }
+        
+        // Show changelog if this is first run of this version
+        ChangeLog cl = new ChangeLog(this);
+        if (cl.firstRun()){
+            cl.getLogDialog().show();
+        }
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -171,7 +182,7 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
 
         if (key.equals("radius")) {
             String value = sharedPreferences.getString(key, "1");
-            if (value.equals("") || !value.matches("[0-9]+") || value.equals("0") || value.equals("00")) {
+            if (value.equals("") || !value.matches("[0-9]+") || value.equals("0") || value.equals("00") || value.equals("000")) {
                 Toast.makeText(this, getString(R.string.pref_logs_error), Toast.LENGTH_LONG).show();
                 value = "1";
                 radius.setText(value);

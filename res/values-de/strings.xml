@@ -8,9 +8,17 @@
     <string name="pref_db_pick_dir_title">Wählen Sie den Ordner mit Anlagen GeoGet</string>
     <string name="pref_attach_title">GeoGet Pfad mit Zusatzfunktionen</string>
     <string name="pref_attach_sum">Nicht benötigt. Pfad zum GeoGet Ordner mit Geocachezusatzfunktionen</string>
+
     <string name="pref_filter">Filtereinstellungen</string>
     <string name="pref_type_screen_title">Geocache Typ</string>
     <string name="pref_type_screen_sum">Gefilterte Typen</string>
+	<string name="pref_size_screen_title">Größe</string>
+	<string name="pref_size_screen_sum">Filter nach Behältergröße</string>
+	<string name="pref_diff_screen_title">Schwierigkeit</string>
+	<string name="pref_diff_screen_sum">Filter nach Schwierigkeit</string>
+	<string name="pref_terr_screen_title">Gelände</string>
+	<string name="pref_terr_screen_sum">Filter nach Geländewertung</string>
+
     <string name="pref_nick_title">Accountname bei Geocaching.com</string>
     <string name="pref_nick_sum">Um eigene Geocaches zu erkennen</string>
     <string name="pref_disable_title">Deaktivierte Geocaches</string>
@@ -27,7 +35,7 @@
     <string name="pref_logs_error">Die Anzahl muss eine Zahl zwischen 0 und 99 sein!</string>
     <string name="pref_radius_title">Distanzradius</string>
     <string name="pref_radius_sum">Distanzradius in km um Geocaches in Locus zu laden.</string>
-    <string name="pref_radius_error">Der Radius muss eine Zahl zwischen 1 and 99 sein!</string>
+    <string name="pref_radius_error">Der Radius muss eine Zahl zwischen 1 and 999 sein!</string>
     <string name="pref_limit_title">Geocacheanzahl</string>
     <string name="pref_limit_sum">Anzahl der zuladenen Geocaches. Wenn der Wert gleich 0 ist, ist die Funktion deaktiviert.</string>
     <string name="pref_limit_nolimit">Keine Begrenzung</string>
@@ -48,6 +56,7 @@
     <string name="out_of_memory">Speicherplatz reicht nicht aus! Ändere den Filter um die Geocacheanzahl zu verringern!</string>
     <string name="no_external_storage">Externes Speichermedium (SD card) nicht gefunden!</string>
     <string name="no_db_file">GeoGet Datenbank nicht gefunden! Bitte eingeben!</string>
+    <string name="no_db_file_live">GeoGet Datenbank nicht gefunden! Bitte eingeben! Live Karte aus.</string>
     <string name="unable_to_load_geocaches">Laden der Geocaches nicht möglich!</string>
     <string name="unable_to_load_detail">Laden der Geocachedetails nicht möglich!</string>
     <string name="pref_about">Über</string>
@@ -57,4 +66,39 @@
     <string name="support_like_it">Gefällt dir die  GeoGet Datenbank für Locus App?</string>
     <string name="support_rate">Bitte würdige die Arbeit der Entwickler mit einer 5 Sterne-Bewertung im Google Play.</string>
     <string name="canceled">Läd stornieren!</string>
+
+    <!-- cache types -->
+    <string name="pref_type.traditional">Traditional Cache</string>
+    <string name="pref_type.multi">Multi-Cache (Offset Cache)</string>
+    <string name="pref_type.mystery">Mystery or Puzzle Caches</string>
+    <string name="pref_type.earth">EarthCache</string>
+    <string name="pref_type.letter">Letterbox Hybrid</string>
+    <string name="pref_type.event">Event Cache</string>
+    <string name="pref_type.mega">Mega-Event Cache</string>
+    <string name="pref_type.cito">Cache In Trash Out Event</string>
+    <string name="pref_type.wig">Wherigo™ Cache</string>
+    <string name="pref_type.virtual">Virtual Cache</string>
+    <string name="pref_type.webcam">Webcam Cache</string>
+    <string name="pref_type.loc">Locationless (Reverse) Cache</string>
+    <string name="pref_type.hq">Groundspeak Headquarters Cache</string>
+    <string name="pref_type.gps">GPS Adventures Maze Exhibit</string>
+    <string name="pref_type.10years">10 Years! Event Cache</string>
+    <string name="pref_type.benchmark">Benchmark Hunting</string>
+    <string name="pref_type.ape">Project A.P.E. Cache</string>
+
+    <!-- cache size -->
+    <string name="pref_size.micro">Mikro</string>
+    <string name="pref_size.small">Klein</string>
+    <string name="pref_size.regular">Normal</string>
+    <string name="pref_size.large">Groß</string>
+    <string name="pref_size.other">Andere</string>
+    <string name="pref_size.not_chosen">Nicht gewählt</string>
+
+    <string name="wp_personal_note">Persönliche Anmerkung:</string>
+    
+    <string name="about.version_title">Version</string>
+    <string name="about.contact_title">Kontakt</string>
+    <string name="about.contact_text">jerabek.jakub@gmail.com (Englisch)</string>
+    <string name="about.author_title">Autoren</string>
+    <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
 </resources>

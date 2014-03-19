@@ -8,9 +8,17 @@
     <string name="pref_db_pick_dir_title">Selecteer de map met bijlagen GeoGet</string>
     <string name="pref_attach_title">GeoGet pad met bijlagen</string>
     <string name="pref_attach_sum">Niet verplicht. Pad naar GeoGet folder met geocache bijlagen (attach folder)</string>
+
     <string name="pref_filter">Filter instellingen</string>
     <string name="pref_type_screen_title">Geocache type</string>
     <string name="pref_type_screen_sum">Filter geselecteerde types</string>
+    <string name="pref_size_screen_title">Geocache grootte</string>
+	<string name="pref_size_screen_sum">Filter op grootte geselecteerd </string>
+	<string name="pref_diff_screen_title">Geocache moeilijkheid</string>
+	<string name="pref_diff_screen_sum">Filter op moeilijkheid geselecteerd</string>
+	<string name="pref_terr_screen_title">Geocache terrein</string>
+	<string name="pref_terr_screen_sum">Filter op terrein geselecteerd</string>
+
     <string name="pref_nick_title">Naam op Geocaching.com</string>
     <string name="pref_nick_sum">Om eigen caches te herkennen</string>
     <string name="pref_disable_title">Geocaches uitschakelen</string>
@@ -27,7 +35,7 @@
     <string name="pref_logs_error">Aantal logs moet zich tussen 0 en 99 bevinden</string>
     <string name="pref_radius_title">Afstand radius</string>
     <string name="pref_radius_sum">Afstand radius in km voor laden van geocaches in Locus</string>
-    <string name="pref_radius_error">Radius moet zich tussen 1 en 99 bevinden</string>
+    <string name="pref_radius_error">Radius moet zich tussen 1 en 999 bevinden</string>
     <string name="pref_limit_title">Aantal Geocaches</string>
     <string name="pref_limit_sum">Aantal te laden geocaches. Bij waarde 0 wordt dit niet toegepast. (ongelimiteerd)</string>
     <string name="pref_limit_nolimit">geen limiet</string>
@@ -40,7 +48,7 @@
     <string name="geoget_files">GeoGet bestanden</string>
     <string name="loading">Laden</string>
     <string name="geocaches">geocaches</string>
-    <string name="loading_dots">Laden...</string>
+    <string name="loading_dots">Laden…</string>
     <string name="load_from_geoget">Laad GeoGet geocaches</string>
     <string name="error">Fout!</string>
     <string name="install_it">Locus applicatie niet gevonden! Graag installeren!</string>
@@ -48,6 +56,7 @@
     <string name="out_of_memory">Buiten geheugenbereik! Pas filter aan om het aantal geocaches te limiteren!</string>
     <string name="no_external_storage">Externe opslag(SD kaart) niet gevonden!</string>
     <string name="no_db_file">GeoGet database niet gevonden! Stel deze in!</string>
+    <string name="no_db_file_live">GeoGet database niet gevonden! Stel deze in! Live kaart uit.</string>
     <string name="unable_to_load_geocaches">Niet mogelijk om geocaches te laden!</string>
     <string name="unable_to_load_detail">Niet mogelijk om geocache details te laden!</string>
     <string name="pref_about">Over</string>
@@ -57,4 +66,38 @@
     <string name="support_like_it">Bevalt GeoGet Database voor Locus u goed?</string>
     <string name="support_rate">Geef de ontwikkelaars een 5-sterren waardering in Google Play.</string>
     <string name="canceled">Laden geannuleerd</string>
+
+    <!-- cache types -->
+    <string name="pref_type.traditional">Traditional Cache</string>
+    <string name="pref_type.multi">Multi-Cache (Offset Cache)</string>
+    <string name="pref_type.mystery">Mystery or Puzzle Caches</string>
+    <string name="pref_type.earth">EarthCache</string>
+    <string name="pref_type.letter">Letterbox Hybrid</string>
+    <string name="pref_type.event">Event Cache</string>
+    <string name="pref_type.mega">Mega-Event Cache</string>
+    <string name="pref_type.cito">Cache In Trash Out Event</string>
+    <string name="pref_type.wig">Wherigo™ Cache</string>
+    <string name="pref_type.virtual">Virtual Cache</string>
+    <string name="pref_type.webcam">Webcam Cache</string>
+    <string name="pref_type.loc">Locationless (Reverse) Cache</string>
+    <string name="pref_type.hq">Groundspeak Headquarters Cache</string>
+    <string name="pref_type.gps">GPS Adventures Maze Exhibit</string>
+    <string name="pref_type.10years">10 Years! Event Cache</string>
+    <string name="pref_type.benchmark">Benchmark Hunting</string>
+    <string name="pref_type.ape">Project A.P.E. Cache</string>
+
+    <string name="pref_size.micro">Micro</string>
+    <string name="pref_size.small">Small</string>
+    <string name="pref_size.regular">Regular</string>
+    <string name="pref_size.large">Large</string>
+    <string name="pref_size.other">Other</string>
+    <string name="pref_size.not_chosen">Not Chosen</string>
+
+    <string name="wp_personal_note">Persoonlijke notitie:</string>
+    
+    <string name="about.version_title">Versie</string>
+    <string name="about.contact_title">Contact</string>
+    <string name="about.contact_text">jerabek.jakub@gmail.com (Engels)</string>
+    <string name="about.author_title">Auteurs</string>
+    <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
 </resources>

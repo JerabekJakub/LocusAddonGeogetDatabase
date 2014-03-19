@@ -8,9 +8,17 @@
     <string name="pref_db_pick_dir_title">Pick GeoGet attach dir</string>
     <string name="pref_attach_title">GeoGet path with attachments</string>
     <string name="pref_attach_sum">Not required. Path to GeoGet folder with geocache attachments (attach folder)</string>
+
     <string name="pref_filter">Filter settings</string>
     <string name="pref_type_screen_title">Geocache type</string>
     <string name="pref_type_screen_sum">Filter checked types</string>
+    <string name="pref_size_screen_title">Geocache size</string>
+    <string name="pref_size_screen_sum">Filter checked size</string>
+    <string name="pref_diff_screen_title">Geocache difficulty</string>
+    <string name="pref_diff_screen_sum">Filter checked difficulty</string>
+    <string name="pref_terr_screen_title">Geocache terrain</string>
+    <string name="pref_terr_screen_sum">Filter checked terrain</string>
+
     <string name="pref_nick_title">Nick on Geocaching.com</string>
     <string name="pref_nick_sum">For recognize own geocaches</string>
     <string name="pref_disable_title">Disable geocaches</string>
@@ -27,7 +35,7 @@
     <string name="pref_logs_error">Count of logs must be number between 0 and 99</string>
     <string name="pref_radius_title">Distance radius</string>
     <string name="pref_radius_sum">Distance radius in km for load geocaches to Locus</string>
-    <string name="pref_radius_error">Radius must be number between 1 and 99</string>
+    <string name="pref_radius_error">Radius must be number between 1 and 999</string>
     <string name="pref_limit_title">Geocache count</string>
     <string name="pref_limit_sum">Count of geocaches to load. If value equals 0, limit will not be applied (unlimited).</string>
     <string name="pref_limit_nolimit">no limit</string>
@@ -48,6 +56,7 @@
     <string name="out_of_memory">Out of memory! Change filter to decrease geocache count!</string>
     <string name="no_external_storage">External storage (SD card) not found!</string>
     <string name="no_db_file">GeoGet database not found! Set it!</string>
+    <string name="no_db_file_live">GeoGet database not found! Set it! Turning off Live Map.</string>
     <string name="unable_to_load_geocaches">Unable to load geocaches!</string>
     <string name="unable_to_load_detail">Unable to load geocache detail!</string>
     <string name="pref_about">About</string>
@@ -58,21 +67,52 @@
     <string name="support_rate">Please appreciate the developers adding a 5-stars in Google Play.</string>
     <string name="canceled">Loading canceled!</string>
 
-    <string name="pref_type_traditional">Traditional Cache</string>
-    <string name="pref_type_multi">Multi-Cache (Offset Cache)</string>
-    <string name="pref_type_mystery">Mystery or Puzzle Caches</string>
-    <string name="pref_type_earth">EarthCache</string>
-    <string name="pref_type_letter">Letterbox Hybrid</string>
-    <string name="pref_type_event">Event Cache</string>
-    <string name="pref_type_mega">Mega-Event Cache</string>
-    <string name="pref_type_cito">Cache In Trash Out Event</string>
-    <string name="pref_type_wig">Wherigo™ Cache</string>
-    <string name="pref_type_virtual">Virtual Cache</string>
-    <string name="pref_type_webcam">Webcam Cache</string>
-    <string name="pref_type_loc">Locationless (Reverse) Cache</string>
-    <string name="pref_type_hq">Groundspeak Headquarters Cache</string>
-    <string name="pref_type_gps">GPS Adventures Maze Exhibit</string>
-    <string name="pref_type_10years">10 Years! Event Cache</string>
-    <string name="pref_type_benchmark">Benchmark Hunting</string>
-    <string name="pref_type_ape">Project A.P.E. Cache</string>
+    <string name="pref_type.traditional">Traditional Cache</string>
+    <string name="pref_type.multi">Multi-Cache (Offset Cache)</string>
+    <string name="pref_type.mystery">Mystery or Puzzle Caches</string>
+    <string name="pref_type.earth">EarthCache</string>
+    <string name="pref_type.letter">Letterbox Hybrid</string>
+    <string name="pref_type.event">Event Cache</string>
+    <string name="pref_type.mega">Mega-Event Cache</string>
+    <string name="pref_type.cito">Cache In Trash Out Event</string>
+    <string name="pref_type.wig">Wherigo™ Cache</string>
+    <string name="pref_type.virtual">Virtual Cache</string>
+    <string name="pref_type.webcam">Webcam Cache</string>
+    <string name="pref_type.loc">Locationless (Reverse) Cache</string>
+    <string name="pref_type.hq">Groundspeak Headquarters Cache</string>
+    <string name="pref_type.gps">GPS Adventures Maze Exhibit</string>
+    <string name="pref_type.10years">10 Years! Event Cache</string>
+    <string name="pref_type.benchmark">Benchmark Hunting</string>
+    <string name="pref_type.ape">Project A.P.E. Cache</string>
+
+    <string name="pref_size.micro">Micro</string>
+    <string name="pref_size.small">Small</string>
+    <string name="pref_size.regular">Regular</string>
+    <string name="pref_size.large">Large</string>
+    <string name="pref_size.other">Other</string>
+    <string name="pref_size.not_chosen">Not Chosen</string>
+    
+    <string name="pref_diff.one" translatable="false">1</string>
+    <string name="pref_diff.onehalf" translatable="false">1.5</string>
+    <string name="pref_diff.two" translatable="false">2</string>
+    <string name="pref_diff.twohalf" translatable="false">2.5</string>
+    <string name="pref_diff.three" translatable="false">3</string>
+    <string name="pref_diff.threehalf" translatable="false">3.5</string>
+    <string name="pref_diff.four" translatable="false">4</string>
+    <string name="pref_diff.fourhalf" translatable="false">4.5</string>
+    <string name="pref_diff.five" translatable="false">5</string>        
+
+    <string name="wp_personal_note">Personal note:</string>
+    
+    <string name="about.version_title">Version</string>
+    <string name="about.version_text" translatable="false">3.3.3</string>
+    <string name="about.contact_title">Contact</string>
+    <string name="about.contact_text">jerabek.jakub@gmail.com (English or Czech)</string>
+    <string name="about.author_title">Authors</string>
+    <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
+    
+    <string name="changelog_full_title">Change Log</string>
+    <string name="changelog_title">What\'s New</string>
+    <string name="changelog_ok_button">OK</string>
+    <string name="changelog_show_full">more...</string>
 </resources>

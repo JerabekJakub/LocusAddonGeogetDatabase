@@ -10,7 +10,8 @@ import android.content.Intent;
  */
 public class LocationReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "LocusAddonGeogetDatabase|LocationReceiver";
+    @SuppressWarnings("unused")
+	private static final String TAG = "LocusAddonGeogetDatabase|LocationReceiver";
 
     @Override
     public void onReceive(final Context context, Intent intent) {

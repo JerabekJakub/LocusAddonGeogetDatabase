@@ -1,24 +1,32 @@
 package net.kuratkoo.locusaddon.geogetdatabase.util;
 
-import android.content.SharedPreferences;
-import android.util.Log;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
-import menion.android.locus.addon.publiclib.geoData.PointGeocachingData;
+
+import locus.api.objects.geocaching.GeocachingData;
+import locus.api.objects.geocaching.GeocachingLog;
+import locus.api.objects.geocaching.GeocachingWaypoint;
+import android.content.SharedPreferences;
 
 /**
  * Geoget
  * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
+ * @author Jakub Jerabek <jerabek.jakub@gmail.com> since 2014-02
  */
 public class Geoget {
 
-    private static final String TAG = "LocusAddonGeogetDatabase|GeogetUtils";
+    @SuppressWarnings("unused")
+	private static final String TAG = "LocusAddonGeogetDatabase|GeogetUtils";
 
-    public static String decodeZlib(byte[] s, byte[] buff) throws DataFormatException, UnsupportedEncodingException {
+    public static String decodeZlib(byte[] s, byte[] buff) throws DataFormatException, OutOfMemoryError, UnsupportedEncodingException {
+    	if (s == null){
+    		return "";
+    	}
         Inflater decompresser = new Inflater();
         decompresser.setInput(s, 0, s.length);
         int resultLength = decompresser.inflate(buff);
@@ -28,87 +36,93 @@ public class Geoget {
 
     public static int convertLogType(String logType) {
         if (logType.equals("Announcement")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_ANNOUNCEMENT;
+            return GeocachingLog.CACHE_LOG_TYPE_ANNOUNCEMENT;
         } else if (logType.equals("Attended")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_ATTENDED;
+            return GeocachingLog.CACHE_LOG_TYPE_ATTENDED;
         } else if (logType.equals("Didn't find it")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_NOT_FOUNDED;
+            return GeocachingLog.CACHE_LOG_TYPE_NOT_FOUNDED;
         } else if (logType.equals("Enable Listing")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_ENABLE_LISTING;
+            return GeocachingLog.CACHE_LOG_TYPE_ENABLE_LISTING;
         } else if (logType.equals("Found it")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_FOUNDED;
+            return GeocachingLog.CACHE_LOG_TYPE_FOUNDED;
         } else if (logType.equals("Needs Archived")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_NEEDS_ARCHIVED;
+            return GeocachingLog.CACHE_LOG_TYPE_NEEDS_ARCHIVED;
         } else if (logType.equals("Needs Maintenance")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_NEEDS_MAINTENANCE;
+            return GeocachingLog.CACHE_LOG_TYPE_NEEDS_MAINTENANCE;
         } else if (logType.equals("Owner Maintenance")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_OWNER_MAINTENANCE;
+            return GeocachingLog.CACHE_LOG_TYPE_OWNER_MAINTENANCE;
         } else if (logType.equals("Post Reviewer Note")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_POST_REVIEWER_NOTE;
+            return GeocachingLog.CACHE_LOG_TYPE_POST_REVIEWER_NOTE;
         } else if (logType.equals("Publish Listing")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_PUBLISH_LISTING;
+            return GeocachingLog.CACHE_LOG_TYPE_PUBLISH_LISTING;
         } else if (logType.equals("Temporarily Disable Listing")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_TEMPORARILY_DISABLE_LISTING;
+            return GeocachingLog.CACHE_LOG_TYPE_TEMPORARILY_DISABLE_LISTING;
         } else if (logType.equals("Update Coordinates")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_UPDATE_COORDINATES;
+            return GeocachingLog.CACHE_LOG_TYPE_UPDATE_COORDINATES;
         } else if (logType.equals("Webcam Photo Taken")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_WEBCAM_PHOTO_TAKEN;
+            return GeocachingLog.CACHE_LOG_TYPE_WEBCAM_PHOTO_TAKEN;
         } else if (logType.equals("Will Attend")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_WILL_ATTEND;
-        } else if (logType.toLowerCase().equals("write note")) {
-            return PointGeocachingData.CACHE_LOG_TYPE_WRITE_NOTE;
+            return GeocachingLog.CACHE_LOG_TYPE_WILL_ATTEND;
+        } else if (logType.toLowerCase(Locale.getDefault()).equals("write note")) {
+            return GeocachingLog.CACHE_LOG_TYPE_WRITE_NOTE;
         } else {
-            return PointGeocachingData.CACHE_LOG_TYPE_UNKNOWN;
+            return GeocachingLog.CACHE_LOG_TYPE_UNKNOWN;
         }
     }
 
     public static int convertCacheSize(String size) {
         if (size.equals("Small")) {
-            return PointGeocachingData.CACHE_SIZE_SMALL;
+            return GeocachingData.CACHE_SIZE_SMALL;
         } else if (size.equals("Large")) {
-            return PointGeocachingData.CACHE_SIZE_LARGE;
+            return GeocachingData.CACHE_SIZE_LARGE;
         } else if (size.equals("Micro")) {
-            return PointGeocachingData.CACHE_SIZE_MICRO;
+            return GeocachingData.CACHE_SIZE_MICRO;
         } else if (size.equals("Not chosen")) {
-            return PointGeocachingData.CACHE_SIZE_NOT_CHOSEN;
+            return GeocachingData.CACHE_SIZE_NOT_CHOSEN;
         } else if (size.equals("Other")) {
-            return PointGeocachingData.CACHE_SIZE_OTHER;
+            return GeocachingData.CACHE_SIZE_OTHER;
         } else if (size.equals("Regular")) {
-            return PointGeocachingData.CACHE_SIZE_REGULAR;
+            return GeocachingData.CACHE_SIZE_REGULAR;
         } else if (size.equals("Virtual")) {
-            return PointGeocachingData.CACHE_SIZE_NOT_CHOSEN;
+            return GeocachingData.CACHE_SIZE_NOT_CHOSEN;
         } else {
-            return PointGeocachingData.CACHE_SIZE_NOT_CHOSEN;
+            return GeocachingData.CACHE_SIZE_NOT_CHOSEN;
         }
     }
 
+    
     public static int convertCacheType(String type) {
         if (type.equals("Cache In Trash Out Event")) {
-            return PointGeocachingData.CACHE_TYPE_CACHE_IN_TRASH_OUT;
+            return GeocachingData.CACHE_TYPE_CACHE_IN_TRASH_OUT;
         } else if (type.equals("Earthcache")) {
-            return PointGeocachingData.CACHE_TYPE_EARTH;
+            return GeocachingData.CACHE_TYPE_EARTH;
         } else if (type.equals("Event Cache")) {
-            return PointGeocachingData.CACHE_TYPE_EVENT;
+            return GeocachingData.CACHE_TYPE_EVENT;
         } else if (type.equals("Letterbox Hybrid")) {
-            return PointGeocachingData.CACHE_TYPE_LETTERBOX;
+            return GeocachingData.CACHE_TYPE_LETTERBOX;
         } else if (type.equals("Mega-Event Cache")) {
-            return PointGeocachingData.CACHE_TYPE_MEGA_EVENT;
+            return GeocachingData.CACHE_TYPE_MEGA_EVENT;
         } else if (type.equals("Multi-cache")) {
-            return PointGeocachingData.CACHE_TYPE_MULTI;
+            return GeocachingData.CACHE_TYPE_MULTI;
         } else if (type.equals("Traditional Cache")) {
-            return PointGeocachingData.CACHE_TYPE_TRADITIONAL;
+            return GeocachingData.CACHE_TYPE_TRADITIONAL;
         } else if (type.equals("Unknown Cache")) {
-            return PointGeocachingData.CACHE_TYPE_MYSTERY;
+            return GeocachingData.CACHE_TYPE_MYSTERY;
         } else if (type.equals("Virtual Cache")) {
-            return PointGeocachingData.CACHE_TYPE_VIRTUAL;
+            return GeocachingData.CACHE_TYPE_VIRTUAL;
         } else if (type.equals("Webcam Cache")) {
-            return PointGeocachingData.CACHE_TYPE_WEBCAM;
+            return GeocachingData.CACHE_TYPE_WEBCAM;
         } else if (type.equals("Wherigo Cache")) {
-            return PointGeocachingData.CACHE_TYPE_WHERIGO;
+            return GeocachingData.CACHE_TYPE_WHERIGO;
         } else {
-            return PointGeocachingData.CACHE_TYPE_TRADITIONAL;
+            return GeocachingData.CACHE_TYPE_TRADITIONAL;
         }
     }
+    
+    public static int countTypes = 11;
+    public static int countSizes = 6;
+    public static int countDiff = 9;
+    public static int countTerr = 9;
 
     public static Boolean isAvailable(Integer cacheStatus) {
         if (cacheStatus == 0) {
@@ -136,19 +150,19 @@ public class Geoget {
 
     public static String convertWaypointType(String waypointType) {
         if (waypointType.equals("Final Location")) {
-            return PointGeocachingData.CACHE_WAYPOINT_TYPE_FINAL;
+            return GeocachingWaypoint.CACHE_WAYPOINT_TYPE_FINAL;
         } else if (waypointType.equals("Parking Area")) {
-            return PointGeocachingData.CACHE_WAYPOINT_TYPE_PARKING;
+            return GeocachingWaypoint.CACHE_WAYPOINT_TYPE_PARKING;
         } else if (waypointType.equals("Question to Answer")) {
-            return PointGeocachingData.CACHE_WAYPOINT_TYPE_QUESTION;
+            return GeocachingWaypoint.CACHE_WAYPOINT_TYPE_QUESTION;
         } else if (waypointType.equals("Reference Point")) {
-            return PointGeocachingData.CACHE_WAYPOINT_TYPE_REFERENCE;
+            return GeocachingWaypoint.CACHE_WAYPOINT_TYPE_REFERENCE;
         } else if (waypointType.equals("Stages of a Multicache")) {
-            return PointGeocachingData.CACHE_WAYPOINT_TYPE_STAGES;
+            return GeocachingWaypoint.CACHE_WAYPOINT_TYPE_STAGES;
         } else if (waypointType.equals("Trailhead")) {
-            return PointGeocachingData.CACHE_WAYPOINT_TYPE_TRAILHEAD;
+            return GeocachingWaypoint.CACHE_WAYPOINT_TYPE_TRAILHEAD;
         } else {
-            return PointGeocachingData.CACHE_WAYPOINT_TYPE_REFERENCE;
+            return GeocachingWaypoint.CACHE_WAYPOINT_TYPE_REFERENCE;
         }
     }
 
@@ -305,7 +319,66 @@ public class Geoget {
             return false;
         }
     }
+    
+    public static List<String> geocacheSizesFromFilter(SharedPreferences sharedPref){
+        List<String> geocacheSizes = new ArrayList<String>();
 
+        if (sharedPref.getBoolean("gc_size_micro", false)) {
+        	geocacheSizes.add("Micro");
+        }
+        if (sharedPref.getBoolean("gc_size_small", false)) {
+        	geocacheSizes.add("Small");
+        }
+        if (sharedPref.getBoolean("gc_size_regular", false)) {
+        	geocacheSizes.add("Regular");
+        }
+        if (sharedPref.getBoolean("gc_size_large", false)) {
+        	geocacheSizes.add("Large");
+        }
+        if (sharedPref.getBoolean("gc_size_other", false)) {
+        	geocacheSizes.add("Other");
+        }
+        if (sharedPref.getBoolean("gc_size_not_chosen", false)) {
+        	geocacheSizes.add("Not Chosen");
+        }
+
+        return geocacheSizes;
+    }
+    
+    public static List<String> geocacheDiffTerrFromFilter(SharedPreferences sharedPref, String attribute){
+        List<String> geocacheDiffTerr = new ArrayList<String>();
+
+        if (sharedPref.getBoolean("gc_"+attribute+"_1", false)) {
+        	geocacheDiffTerr.add("1");
+        }
+        if (sharedPref.getBoolean("gc_"+attribute+"_15", false)) {
+        	geocacheDiffTerr.add("1.5");
+        }
+        if (sharedPref.getBoolean("gc_"+attribute+"_2", false)) {
+        	geocacheDiffTerr.add("2");
+        }
+        if (sharedPref.getBoolean("gc_"+attribute+"_25", false)) {
+        	geocacheDiffTerr.add("2.5");
+        }
+        if (sharedPref.getBoolean("gc_"+attribute+"_3", false)) {
+        	geocacheDiffTerr.add("3");
+        }
+        if (sharedPref.getBoolean("gc_"+attribute+"_35", false)) {
+        	geocacheDiffTerr.add("3.5");
+        }
+        if (sharedPref.getBoolean("gc_"+attribute+"_4", false)) {
+        	geocacheDiffTerr.add("4");
+        }
+        if (sharedPref.getBoolean("gc_"+attribute+"_45", false)) {
+        	geocacheDiffTerr.add("4.5");
+        }
+        if (sharedPref.getBoolean("gc_"+attribute+"_5", false)) {
+        	geocacheDiffTerr.add("5");
+        }
+
+        return geocacheDiffTerr;
+    }
+    
     public static List<String> geocacheTypesFromFilter(SharedPreferences sharedPref) {
         List<String> geocacheTypes = new ArrayList<String>();
 

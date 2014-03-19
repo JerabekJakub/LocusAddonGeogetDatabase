@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">GeoGet Database for Locus</string>
     <string name="pref_path">Nastavení cest</string>
     <string name="pref_db_title">Databáze GeoGetu</string>
@@ -7,10 +8,18 @@
     <string name="pref_db_pick_title">Vyberte soubor databáze</string>
     <string name="pref_db_pick_dir_title">Vyberte složku s GeoGet přílohami</string>
     <string name="pref_attach_title">Přílohy keší z GeoGetu</string>
-    <string name="pref_attach_sum">Nepovinné. Cesta ke GeoGet složce s přílohama (složka attach)</string>
+    <string name="pref_attach_sum">Nepovinné. Cesta ke GeoGet složce s přílohami (složka attach)</string>
+
     <string name="pref_filter">Nastavení filtru</string>
     <string name="pref_type_screen_title">Typy keší</string>
-    <string name="pref_type_screen_sum">Budou filtrovány pouze zatrhlé keše</string>
+    <string name="pref_type_screen_sum">Budou filtrovány pouze keše vybraných typů</string>
+    <string name="pref_size_screen_title">Velikost keší</string>
+    <string name="pref_size_screen_sum">Budou filtrovány pouze keše vybraných velikostí</string>
+    <string name="pref_diff_screen_title">Obtížnost keší</string>
+    <string name="pref_diff_screen_sum">Budou filtrovány pouze keše s vybranou obtížností</string>
+    <string name="pref_terr_screen_title">Terén keší</string>
+    <string name="pref_terr_screen_sum">Budou filtrovány pouze keše s vybraným terénem</string>
+
     <string name="pref_nick_title">Uživatelské jméno na Geocaching.com</string>
     <string name="pref_nick_sum">Pro rozpoznání vlastních keší</string>
     <string name="pref_disable_title">Neaktivní (disable) keše</string>
@@ -27,7 +36,7 @@
     <string name="pref_logs_error">Počet logů musí být číslo od 0 do 99</string>
     <string name="pref_radius_title">Vzdálenost</string>
     <string name="pref_radius_sum">Maximální vzdálenost pro načtení keší do Locusu</string>
-    <string name="pref_radius_error">Vzdálenost musí být číslo od 1 do 99</string>
+    <string name="pref_radius_error">Vzdálenost musí být číslo od 1 do 999</string>
     <string name="pref_limit_title">Počet keší</string>
     <string name="pref_limit_sum">Počet keší pro načtení. Pokud je hodnota rovna 0, limit není aplikován (neomezeno).</string>
     <string name="pref_limit_nolimit">neomezeno</string>
@@ -44,10 +53,11 @@
     <string name="load_from_geoget">Načíst keše z GeoGetu</string>
     <string name="error">Chyba!</string>
     <string name="install_it">Aplikace Locus nebyla nalezena! Prosím, nainstalujte ji!</string>
-    <string name="update_it">Je požadována novější verze Locusu (>= 1.14.6)! Prosím, aktualizujte!</string>
-    <string name="out_of_memory">Nedostatek paměti! Změntě filtr ke snížení počtu načítaných keší!</string>
+    <string name="update_it">Je požadována novější verze Locusu (>= 2.7.3)! Prosím, aktualizujte!</string>
+    <string name="out_of_memory">Nedostatek paměti! Změnte filtr ke snížení počtu načítaných keší!</string>
     <string name="no_external_storage">Nebylo nalezeno externí úložiště (SD karta)!</string>
-    <string name="no_db_file">Nebyla nalezen soubor s GeoGet databází! Nastavte ji!</string>
+    <string name="no_db_file">Nebyl nalezen soubor s GeoGet databází! Nastavte ji!</string>
+    <string name="no_db_file_live">Nebyl nalezen soubor s GeoGet databází! Nastavte ji! Vypínám Live mapu.</string>
     <string name="unable_to_load_geocaches">Nepodařilo se načíst kešky!</string>
     <string name="unable_to_load_detail">Nepodařilo se načíst detail kešky!</string>
     <string name="pref_about">O aplikaci</string>
@@ -55,6 +65,40 @@
     <string name="pref_donate_sum">Líbí se ti addon a chtěl bys podpořit další vývoj? Klikni a přispěj pár kaček!</string>
     <string name="support_app">Podpořte GeoGet Database for Locus</string>
     <string name="support_like_it">Líbí se Vám aplikace GeoGet Database for Locus?</string>
-    <string name="support_rate">Oceňte prosím vývojáře přidáním 5-ti hvězdiček v Google Play.</string>
+    <string name="support_rate">Oceňte prosím vývojáře přidáním pěti hvězdiček v Google Play.</string>
     <string name="canceled">Načítání zrušeno!</string>
+
+    <!-- cache types -->
+    <string name="pref_type.traditional">Traditional Cache</string>
+    <string name="pref_type.multi">Multi-Cache (Offset Cache)</string>
+    <string name="pref_type.mystery">Mystery or Puzzle Caches</string>
+    <string name="pref_type.earth">EarthCache</string>
+    <string name="pref_type.letter">Letterbox Hybrid</string>
+    <string name="pref_type.event">Event Cache</string>
+    <string name="pref_type.mega">Mega-Event Cache</string>
+    <string name="pref_type.cito">Cache In Trash Out Event</string>
+    <string name="pref_type.wig">Wherigo™ Cache</string>
+    <string name="pref_type.virtual">Virtual Cache</string>
+    <string name="pref_type.webcam">Webcam Cache</string>
+    <string name="pref_type.loc">Locationless (Reverse) Cache</string>
+    <string name="pref_type.hq">Groundspeak Headquarters Cache</string>
+    <string name="pref_type.gps">GPS Adventures Maze Exhibit</string>
+    <string name="pref_type.10years">10 Years! Event Cache</string>
+    <string name="pref_type.benchmark">Benchmark Hunting</string>
+    <string name="pref_type.ape">Project A.P.E. Cache</string>
+
+    <string name="pref_size.micro">Micro</string>
+    <string name="pref_size.small">Small</string>
+    <string name="pref_size.regular">Regular</string>
+    <string name="pref_size.large">Large</string>
+    <string name="pref_size.other">Other</string>
+    <string name="pref_size.not_chosen">Not Chosen</string>
+    
+    <string name="wp_personal_note">Vlastní poznámka:</string>
+    
+    <string name="about.version_title">Verze</string>
+    <string name="about.contact_title">Kontakt</string>
+    <string name="about.contact_text">jerabek.jakub@gmail.com (česky nebo anglicky)</string>
+    <string name="about.author_title">Autoři</string>
+    <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
 </resources>

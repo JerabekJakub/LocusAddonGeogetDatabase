@@ -1,30 +1,36 @@
 package net.kuratkoo.locusaddon.geogetdatabase.receiver;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import locus.api.android.ActionDisplayPoints;
+import locus.api.android.PeriodicUpdate;
+import locus.api.android.UpdateContainer;
+import locus.api.android.objects.PackWaypoints;
+import locus.api.android.utils.RequiredVersionMissingException;
+import locus.api.objects.extra.Location;
+import locus.api.objects.extra.Waypoint;
+import locus.api.objects.geocaching.GeocachingData;
+import locus.api.objects.geocaching.GeocachingWaypoint;
+import net.kuratkoo.locusaddon.geogetdatabase.R;
+import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import menion.android.locus.addon.publiclib.DisplayData;
-import menion.android.locus.addon.publiclib.PeriodicUpdate;
-import menion.android.locus.addon.publiclib.PeriodicUpdate.UpdateContainer;
-import menion.android.locus.addon.publiclib.geoData.Point;
-import menion.android.locus.addon.publiclib.geoData.PointGeocachingData;
-import menion.android.locus.addon.publiclib.geoData.PointGeocachingDataWaypoint;
-import menion.android.locus.addon.publiclib.geoData.PointsData;
-import menion.android.locus.addon.publiclib.utils.RequiredVersionMissingException;
-import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
 
 /**
  * PointLoader
+ * This class is responsible for loading caches to Live Map
  * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
  */
 public class PointLoader {
@@ -54,14 +60,33 @@ public class PointLoader {
     }
 
     public void run() {
+    	
+    	final boolean liveMap = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("livemap", false);
+    	final String database = PreferenceManager.getDefaultSharedPreferences(context).getString("db", "");
+    	
+        File fd;
+		try {
+			fd = new File(URLDecoder.decode(database, "UTF-8"));
+			if (!Geoget.isGeogetDatabase(fd) && liveMap) {
+				// database does not exists - switch live map off
+				SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+	            SharedPreferences.Editor editor = sharedPref.edit();
+	            editor.putBoolean("livemap", false);
+	            editor.commit();
+	            Toast.makeText(context, context.getString(R.string.no_db_file_live), Toast.LENGTH_LONG).show();
+	            return;
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+    	
         PeriodicUpdate pu = PeriodicUpdate.getInstance();
-        pu.setLocNotificationLimit(50.0);
-        pu.onReceive(context, intent, new PeriodicUpdate.OnUpdate() {
+        pu.setLocNotificationLimit(50.0);        
+		pu.onReceive(context, intent, new PeriodicUpdate.OnUpdate() {
 
             public void onUpdate(UpdateContainer update) {
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("livemap", false)
-                        && !PreferenceManager.getDefaultSharedPreferences(context).getString("db", "").equals("")) {
-                    if ((update.newMapCenter || update.newZoomLevel) && update.mapVisible) {
+                if (liveMap && !database.equals("")) {
+                    if ((update.isNewMapCenter() || update.isNewZoomLevel()) && update.isMapVisible()) {
                         if (mapLoadAsyncTask instanceof AsyncTask) {
                         }
                         if (mapLoadAsyncTask == null || mapLoadAsyncTask.getStatus() == AsyncTask.Status.FINISHED) {
@@ -83,13 +108,20 @@ public class PointLoader {
 
     private class MapLoadAsyncTask extends AsyncTask<UpdateContainer, Integer, Exception> {
 
-        private PointsData pd;
+        private PackWaypoints pd;
         private SQLiteDatabase db;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            db = SQLiteDatabase.openDatabase(PreferenceManager.getDefaultSharedPreferences(context).getString("db", ""), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+            try {
+				db = SQLiteDatabase.openDatabase(
+						URLDecoder.decode(PreferenceManager.getDefaultSharedPreferences(context).getString("db", ""), "UTF-8"),
+						null,
+						SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
         }
 
         @Override
@@ -100,28 +132,35 @@ public class PointLoader {
                 }
 
                 UpdateContainer update = updateSet[0];
-                pd = new PointsData("GeoGet live data");
+                pd = new PackWaypoints("GeoGet live data");
 
                 String[] cond = new String[]{
-                    String.valueOf(update.mapBottomRight.getLatitude()),
-                    String.valueOf(update.mapTopLeft.getLatitude()),
-                    String.valueOf(update.mapTopLeft.getLongitude()),
-                    String.valueOf(update.mapBottomRight.getLongitude())
+                    String.valueOf(update.getMapBottomRight().getLatitude()),
+                    String.valueOf(update.getMapTopLeft().getLatitude()),
+                    String.valueOf(update.getMapTopLeft().getLongitude()),
+                    String.valueOf(update.getMapBottomRight().getLongitude()),
+                    String.valueOf(update.getMapBottomRight().getLatitude()),
+                    String.valueOf(update.getMapTopLeft().getLatitude()),
+                    String.valueOf(update.getMapTopLeft().getLongitude()),
+                    String.valueOf(update.getMapBottomRight().getLongitude())
                 };
 
-                String sql = "SELECT x, y, id, author, name, cachetype, cachestatus, dtfound FROM geocache WHERE (cachestatus = 0";
+                String sql = "SELECT geocache.id, geocache.x, geocache.y, geocache.name, difficulty, terrain, cachesize, cachetype, cachestatus, dtfound, author " +
+                		"FROM geocache " +
+                		"LEFT JOIN waypoint ON geocache.id = waypoint.id " +
+                		"WHERE cachestatus IN (0";
 
-                // Disable geocaches
+                // Disabled geocaches
                 if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("disable", false)) {
-                    sql = sql + " OR cachestatus = 1";
+                    sql += ",1";
                 }
 
                 // Archived geocaches
                 if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("archive", false)) {
-                    sql = sql + " OR cachestatus = 2";
+                    sql += ",2";
                 }
 
-                sql = sql + ") ";
+                sql += ") ";
 
                 if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("found", false)) {
                     sql = sql + " AND dtfound = 0";
@@ -131,23 +170,52 @@ public class PointLoader {
                     sql = sql + " AND author != \"" + PreferenceManager.getDefaultSharedPreferences(context).getString("nick", "") + "\"";
                 }
 
+                // Filter cache type
                 List<String> geocacheTypes = Geoget.geocacheTypesFromFilter(PreferenceManager.getDefaultSharedPreferences(context));
-                boolean first = true;
-                String sqlType = "";
-                for (String geocacheType : geocacheTypes) {
-                    if (first) {
-                        sqlType += "cachetype = \"" + geocacheType + "\"";
-                        first = false;
-                    } else {
-                        sqlType += " OR cachetype = \"" + geocacheType + "\"";
+                if (!geocacheTypes.isEmpty() && geocacheTypes.size() != Geoget.countTypes){
+                	sql += " AND cachetype IN (\"" + geocacheTypes.remove(0) + "\"";
+                    
+                	for (String geocacheType : geocacheTypes) {
+                    	sql += ", \"" + geocacheType + "\"";
                     }
-                }
-                if (!sqlType.equals("")) {
-                    sql += " AND (" + sqlType + ")";
+                	sql += ") ";
                 }
 
-                sql += " AND CAST(x AS REAL) > ? AND CAST(x AS REAL) < ? AND CAST(y AS REAL) > ? AND CAST(y AS REAL) < ?";
+                // Filter cache size
+                List<String> geocacheSizes = Geoget.geocacheSizesFromFilter(PreferenceManager.getDefaultSharedPreferences(context));
+                if (!geocacheSizes.isEmpty() && geocacheSizes.size() != Geoget.countSizes){
+                	sql += " AND cachesize IN (\"" + geocacheSizes.remove(0) + "\"";
+                    
+                	for (String geocacheSize : geocacheSizes) {
+                    	sql += ", \"" + geocacheSize + "\"";
+                    }
+                	sql += ") ";
+                }
 
+                // Filter terrain
+                List<String> geocacheTerrains = Geoget.geocacheDiffTerrFromFilter(PreferenceManager.getDefaultSharedPreferences(context), "terr");
+                if (!geocacheTerrains.isEmpty() && geocacheTerrains.size() != Geoget.countTerr){
+                	sql += " AND terrain IN (\"" + geocacheTerrains.remove(0) + "\"";
+                    
+                	for (String geocacheTerrain : geocacheTerrains) {
+                    	sql += ", \"" + geocacheTerrain + "\"";
+                    }
+                	sql += ") ";
+                }
+
+                // Filter difficulty
+                List<String> geocacheDifficulties = Geoget.geocacheDiffTerrFromFilter(PreferenceManager.getDefaultSharedPreferences(context), "diff");
+                if (!geocacheDifficulties.isEmpty() && geocacheDifficulties.size() != Geoget.countDiff){
+                	sql += " AND difficulty IN (\"" + geocacheDifficulties.remove(0) + "\"";
+                    
+                	for (String geocacheDiff : geocacheDifficulties) {
+                    	sql += ", \"" + geocacheDiff + "\"";
+                    }
+                	sql += ") ";
+                }
+
+                sql += " AND ((CAST(geocache.x AS REAL) > ? AND CAST(geocache.x AS REAL) < ? AND CAST(geocache.y AS REAL) > ? AND CAST(geocache.y AS REAL) < ?) OR (CAST(waypoint.x AS REAL) > ? AND CAST(waypoint.x AS REAL) < ? AND CAST(waypoint.y AS REAL) > ? AND CAST(waypoint.y AS REAL) < ?))";
+                sql += " GROUP BY geocache.id";
                 Cursor c = db.rawQuery(sql, cond);
 
                 if (this.isCancelled()) {
@@ -163,41 +231,67 @@ public class PointLoader {
                     Location loc = new Location(TAG);
                     loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
                     loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
-                    Point p = new Point(c.getString(c.getColumnIndex("name")), loc);
+                    Waypoint p = new Waypoint(c.getString(c.getColumnIndex("name")), loc);
 
-                    PointGeocachingData gcData = new PointGeocachingData();
-                    gcData.cacheID = c.getString(c.getColumnIndex("id"));
-                    gcData.name = c.getString(c.getColumnIndex("name"));
-                    gcData.owner = c.getString(c.getColumnIndex("author"));
+                    GeocachingData gcData = new GeocachingData();
+                    gcData.setCacheID(c.getString(c.getColumnIndex("id")));
+                    gcData.setName(c.getString(c.getColumnIndex("name")));
+                    gcData.difficulty = c.getFloat(c.getColumnIndex("difficulty"));
+                    gcData.terrain = c.getFloat(c.getColumnIndex("terrain"));
+                    gcData.setContainer(Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize"))));
                     gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
+                    gcData.setOwner(c.getString(c.getColumnIndex("author")));
+                    gcData.setPlacedBy(c.getString(c.getColumnIndex("author")));
+
                     gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
                     gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
                     gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
+                    gcData.computed = false;
+  
+                    /** Add PMO tag **/
+                    String query = "SELECT geotagcategory.value AS key, geotagvalue.value FROM geotag " +
+                    		"INNER JOIN geotagcategory ON geotagcategory.key = geotag.ptrkat " +
+                    		"INNER JOIN geotagvalue ON geotagvalue.key = geotag.ptrvalue " +
+                    		"WHERE geotagcategory.value = \"PMO\" AND geotag.id = ?";
+                    Cursor tags = db.rawQuery(query, new String[]{gcData.getCacheID()});
 
+                    while (tags.moveToNext()){
+                   		if (tags.getString(tags.getColumnIndex("value")).equals("X")) {
+                   			gcData.premiumOnly = true;
+                   		}
+                   	}
+                    tags.close();
+                    
                     /** Add waypoints to Geocache **/
-                    Cursor wp = db.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid FROM waypoint WHERE id = ?", new String[]{gcData.cacheID});
-                    ArrayList<PointGeocachingDataWaypoint> pgdws = new ArrayList<PointGeocachingDataWaypoint>();
+                    Cursor wp = db.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid, comment FROM waypoint WHERE id = ?", new String[]{gcData.getCacheID()});
 
                     while (wp.moveToNext()) {
                         if (this.isCancelled()) {
                             wp.close();
                             return null;
                         }
-                        PointGeocachingDataWaypoint pgdw = new PointGeocachingDataWaypoint();
+
+                        GeocachingWaypoint pgdw = new GeocachingWaypoint();
                         pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
                         pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
                         pgdw.name = wp.getString(wp.getColumnIndex("name"));
                         pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
+                        pgdw.desc = wp.getString(wp.getColumnIndex("cmt"));
                         pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
-                        pgdws.add(pgdw);
+                        String comment = wp.getString(wp.getColumnIndex("comment"));
+                        if (comment != null && !comment.equals("")){
+                        	pgdw.desc += " <hr><b>" + context.getString(R.string.wp_personal_note) + "</b> " + comment;
+                        }
+                        gcData.waypoints.add(pgdw);
                     }
                     wp.close();
-                    gcData.waypoints = pgdws;
 
-                    p.setGeocachingData(gcData);
-                    p.setExtraOnDisplay("net.kuratkoo.locusaddon.geogetdatabase", "net.kuratkoo.locusaddon.geogetdatabase.DetailActivity", "cacheId", gcData.cacheID);
-                    pd.addPoint(p);
+                    p.gcData = gcData;
+                    // where to obtain more data
+                    p.setExtraOnDisplay("net.kuratkoo.locusaddon.geogetdatabase", "net.kuratkoo.locusaddon.geogetdatabase.DetailActivity", "cacheId", gcData.getCacheID());
+                    pd.addWaypoint(p);
                 }
+
                 c.close();
 
                 if (this.isCancelled()) {
@@ -214,11 +308,11 @@ public class PointLoader {
         protected void onPostExecute(Exception exception) {
             super.onPostExecute(exception);
             Log.d(TAG, "onPostExecute");
-            
+
             db.close();
             if (exception != null) {
                 Log.w(TAG, exception);
-                Toast.makeText(context, "Error: " + exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Error: "+exception.getClass()+ " - " + exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
 
             try {
@@ -229,9 +323,9 @@ public class PointLoader {
                 }
                 filePath += "/Android/data/net.kuratkoo.locusaddon.geogetdatabase/livemap.locus";
 
-                ArrayList<PointsData> data = new ArrayList<PointsData>();
+                ArrayList<PackWaypoints> data = new ArrayList<PackWaypoints>();
                 data.add(pd);
-                DisplayData.sendDataFileSilent(context, data, filePath, true);
+                ActionDisplayPoints.sendPacksFileSilent(context, data, filePath, true);
             } catch (RequiredVersionMissingException rvme) {
                 Toast.makeText(context, "Error: " + rvme.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }

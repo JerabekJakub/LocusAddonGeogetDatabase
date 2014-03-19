@@ -1,28 +1,33 @@
 package net.kuratkoo.locusaddon.geogetdatabase;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import locus.api.android.utils.LocusConst;
+import locus.api.objects.extra.Location;
+import locus.api.objects.extra.Waypoint;
+import locus.api.objects.geocaching.GeocachingAttribute;
+import locus.api.objects.geocaching.GeocachingData;
+import locus.api.objects.geocaching.GeocachingLog;
+import locus.api.objects.geocaching.GeocachingWaypoint;
 import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import menion.android.locus.addon.publiclib.LocusConst;
-import menion.android.locus.addon.publiclib.geoData.PointGeocachingData;
-import menion.android.locus.addon.publiclib.geoData.Point;
-import menion.android.locus.addon.publiclib.geoData.PointGeocachingAttributes;
-import menion.android.locus.addon.publiclib.geoData.PointGeocachingDataLog;
-import menion.android.locus.addon.publiclib.geoData.PointGeocachingDataWaypoint;
 
 /**
  * DetailActivity
  * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
+ * @author Jakub Jerabek <jerabek.jakub@gmail.com> since 2014-02
  */
 public class DetailActivity extends Activity {
 
@@ -34,13 +39,21 @@ public class DetailActivity extends Activity {
 
         Intent intent = getIntent();
 
+        Log.v(TAG, "Nacitam detaily z databaze...");
         // Check path to database.
-        File fd = new File(PreferenceManager.getDefaultSharedPreferences(this).getString("db", ""));
-        if (!Geoget.isGeogetDatabase(fd)) {
-            Toast.makeText(this, R.string.no_db_file, Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+        File fd;
+        String database = PreferenceManager.getDefaultSharedPreferences(this).getString("db", "");
+		try {
+			fd = new File(URLDecoder.decode(database, "UTF-8"));
+	        if (!Geoget.isGeogetDatabase(fd)) {
+	            Toast.makeText(this, getString(R.string.no_db_file), Toast.LENGTH_LONG).show();
+	            finish();
+	            return;
+	        }
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+
 
         if (intent.hasExtra("cacheId")) {
             String cacheId = intent.getStringExtra("cacheId");
@@ -48,29 +61,42 @@ public class DetailActivity extends Activity {
 
                 byte[] buff = new byte[100000];
 
-                SQLiteDatabase database = SQLiteDatabase.openDatabase(PreferenceManager.getDefaultSharedPreferences(this).getString("db", ""), null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-                Cursor c = database.rawQuery("SELECT * FROM geocache JOIN geolist USING (id) WHERE id = ?", new String[]{cacheId});
+                SQLiteDatabase db = SQLiteDatabase.openDatabase(
+                		URLDecoder.decode(database, "UTF-8"), 
+                		null, 
+                		SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+                Cursor c = db.rawQuery(
+                		"SELECT * FROM geocache LEFT JOIN geolist ON geolist.id = geocache.id WHERE geocache.id = ?",
+                		new String[]{cacheId});
                 c.moveToNext();
 
                 Location loc = new Location(TAG);
                 loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
                 loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
-                Point p = new Point(c.getString(c.getColumnIndex("name")), loc);
+        		Waypoint wpt = new Waypoint(c.getString(c.getColumnIndex("name")), loc);
 
-                PointGeocachingData gcData = new PointGeocachingData();
-                gcData.cacheID = c.getString(c.getColumnIndex("id"));
-                gcData.name = c.getString(c.getColumnIndex("name"));
-                gcData.owner = c.getString(c.getColumnIndex("author"));
-                gcData.placedBy = c.getString(c.getColumnIndex("author"));
+                GeocachingData gcData = new GeocachingData();
+                gcData.setCacheID(c.getString(c.getColumnIndex("id")));
+                gcData.setName(c.getString(c.getColumnIndex("name")));
                 gcData.difficulty = c.getFloat(c.getColumnIndex("difficulty"));
                 gcData.terrain = c.getFloat(c.getColumnIndex("terrain"));
-                gcData.country = c.getString(c.getColumnIndex("country"));
-                gcData.state = c.getString(c.getColumnIndex("state"));
-                gcData.notes = c.getString(c.getColumnIndex("comment"));
-                gcData.container = Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize")));
-                gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
-                gcData.encodedHints = c.getString(c.getColumnIndex("hint"));
-                gcData.longDescription = Geoget.decodeZlib(c.getBlob(c.getColumnIndex("longdesc")), buff);
+                gcData.setContainer(Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize"))));
+                gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));                    
+                gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
+                gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
+                gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
+                gcData.setOwner(c.getString(c.getColumnIndex("author")));
+                gcData.setPlacedBy(c.getString(c.getColumnIndex("author")));
+                gcData.setCountry(c.getString(c.getColumnIndex("country")));
+                gcData.setState(c.getString(c.getColumnIndex("state")));
+                gcData.setNotes(c.getString(c.getColumnIndex("comment")));
+                gcData.computed = false;
+
+                Date date = new Date();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());
+                gcData.dateCreated = date.getTime();
+                gcData.lastUpdated = c.getLong(c.getColumnIndex("dtupdate2"));
+                gcData.hidden = dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime();
 
                 // Try to get files
                 String attachPath = PreferenceManager.getDefaultSharedPreferences(this).getString("attach", "");
@@ -79,7 +105,7 @@ public class DetailActivity extends Activity {
                     if (!attachPath.endsWith("/")) {
                         attachPath += "/";
                     }
-                    File geocacheFilePath = new File(attachPath + gcData.cacheID.substring(gcData.cacheID.length() - 1) + "/" + gcData.cacheID);
+                    File geocacheFilePath = new File(attachPath + gcData.getCacheID().substring(gcData.getCacheID().length() - 1) + "/" + gcData.getCacheID());
                     if (geocacheFilePath.exists() && geocacheFilePath.isDirectory() && geocacheFilePath.canRead()) {
                         filesDescription += "<b>" + getText(R.string.geoget_files) + ":</b>";
                         boolean first = true;
@@ -94,79 +120,98 @@ public class DetailActivity extends Activity {
                         filesDescription += "<br /><hr /><br />";
                     }
                 }
-                gcData.shortDescription = filesDescription + Geoget.decodeZlib(c.getBlob(c.getColumnIndex("shortdesc")), buff);
-                gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
-                gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
-                gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
-                gcData.computed = false;
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-                Date date = new Date();
-                gcData.exported = dateFormat.format(date);
 
-                String lastUpdated = c.getString(c.getColumnIndex("dtupdate"));
-                gcData.lastUpdated = lastUpdated.substring(0, 4) + "-" + lastUpdated.substring(4, 6) + "-" + lastUpdated.substring(6, 8) + "T";
-
-                String hidden = c.getString(c.getColumnIndex("dthidden"));
-                gcData.hidden = hidden.substring(0, 4) + "-" + hidden.substring(4, 6) + "-" + hidden.substring(6, 8) + "T";
+                gcData.setEncodedHints(c.getString(c.getColumnIndex("hint")));
+                gcData.setShortDescription(filesDescription +
+                		Geoget.decodeZlib(c.getBlob(c.getColumnIndex("shortdesc")), buff),
+                		(c.getInt(c.getColumnIndex("shortdescflag")) == 1 ? true : false));
+                gcData.setLongDescription(
+                		Geoget.decodeZlib(c.getBlob(c.getColumnIndex("longdesc")), buff),
+                		(c.getInt(c.getColumnIndex("longdescflag")) == 1 ? true : false));
                 c.close();
+                
+                /** Add PMO tag, number of favorites and elevation **/
+                String query = "SELECT geotagcategory.value AS key, geotagvalue.value FROM geotag " +
+                		"INNER JOIN geotagcategory ON geotagcategory.key = geotag.ptrkat " +
+                		"INNER JOIN geotagvalue ON geotagvalue.key = geotag.ptrvalue " +
+                		"WHERE geotagcategory.value IN (\"favorites\", \"Elevation\", \"PMO\") AND geotag.id = ?";
+                Cursor tags = db.rawQuery(query, new String[]{gcData.getCacheID()});
+
+                while (tags.moveToNext()){
+               		String key = tags.getString(tags.getColumnIndex("key"));
+               		String value = tags.getString(tags.getColumnIndex("value"));
+               		
+               		if (key.equals("PMO") && value.equals("X")) {
+               			gcData.premiumOnly = true;
+               		} else if (key.equals("favorites")) {
+               			gcData.favoritePoints = Integer.parseInt(value);
+               		} else if (key.equals("Elevation")) {
+                		wpt.getLocation().setAltitude(Double.parseDouble(value));
+               		}
+               	}
+                tags.close();
+
 
                 /** Add waypoints to Geocache **/
-                Cursor wp = database.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid FROM waypoint WHERE id = ?", new String[]{gcData.cacheID});
-                ArrayList<PointGeocachingDataWaypoint> pgdws = new ArrayList<PointGeocachingDataWaypoint>();
+                Cursor wp = db.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid, comment, flag FROM waypoint WHERE id = ?", new String[]{gcData.getCacheID()});
 
                 while (wp.moveToNext()) {
-                    PointGeocachingDataWaypoint pgdw = new PointGeocachingDataWaypoint();
+                	GeocachingWaypoint pgdw = new GeocachingWaypoint();
                     pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
                     pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
                     pgdw.name = wp.getString(wp.getColumnIndex("name"));
                     pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
-                    pgdw.description = wp.getString(wp.getColumnIndex("cmt"));
+                    pgdw.desc = wp.getString(wp.getColumnIndex("cmt"));
                     pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
-                    pgdws.add(pgdw);
+
+                    // Personal note from Geoget
+                    String comment = wp.getString(wp.getColumnIndex("comment"));
+                    if (comment != null && !comment.equals("")){
+                    	pgdw.desc += " <hr><b>" + getText(R.string.wp_personal_note) + "</b> " + comment;
+                    }
+
+                    gcData.waypoints.add(pgdw);
                 }
                 wp.close();
-                gcData.waypoints = pgdws;
 
-                /** Add logs to Geocache **/
-                String limit = PreferenceManager.getDefaultSharedPreferences(this).getString("logs_count", "20");
-                Cursor logs = database.rawQuery("SELECT dt, finder, type, logtext FROM geolog WHERE id = ? ORDER BY dt DESC LIMIT ?", new String[]{gcData.cacheID, limit});
-                ArrayList<PointGeocachingDataLog> pgdls = new ArrayList<PointGeocachingDataLog>();
+                /** Add logs to Geocache **/                    
+                String logsLimit = PreferenceManager.getDefaultSharedPreferences(DetailActivity.this).getString("logs_count", "0");
+                Cursor logs = db.rawQuery(
+                		"SELECT dt, type, finder, logtext FROM geolog WHERE id = ? LIMIT ?",
+                		new String[]{gcData.getCacheID(), logsLimit});
 
                 while (logs.moveToNext()) {
-                    PointGeocachingDataLog pgdl = new PointGeocachingDataLog();
-                    String found = logs.getString(logs.getColumnIndex("dt"));
-                    pgdl.date = found.substring(0, 4) + "-" + found.substring(4, 6) + "-" + found.substring(6, 8) + "T00:00:00Z";
+                	GeocachingLog pgdl = new GeocachingLog();
+                    pgdl.date = dateFormat.parse(logs.getString(logs.getColumnIndex("dt"))).getTime();
                     pgdl.finder = logs.getString(logs.getColumnIndex("finder"));
                     pgdl.logText = Geoget.decodeZlib(logs.getBlob(logs.getColumnIndex("logtext")), buff);
                     pgdl.type = Geoget.convertLogType(logs.getString(logs.getColumnIndex("type")));
-                    pgdls.add(pgdl);
+
+					gcData.logs.add(pgdl);
                 }
                 logs.close();
-                gcData.logs = pgdls;
 
                 /** Add attributes to Geocache **/
-                Cursor at = database.rawQuery("SELECT gtv.value, gtc.value AS category FROM geotag gt JOIN geotagvalue gtv ON gt.ptrvalue = gtv.key JOIN geotagcategory gtc ON gtc.key = gt.ptrkat WHERE gt.id = ?", new String[]{gcData.cacheID});
-                ArrayList<PointGeocachingAttributes> pgas = new ArrayList<PointGeocachingAttributes>();
+                Cursor at = db.rawQuery("SELECT gtv.value, gtc.value AS category FROM geotag gt JOIN geotagvalue gtv ON gt.ptrvalue = gtv.key JOIN geotagcategory gtc ON gtc.key = gt.ptrkat WHERE gt.id = ?", new String[]{gcData.getCacheID()});
 
                 while (at.moveToNext()) {
                     if (at.getString(at.getColumnIndex("category")).equals("attribute")) { // is Attribute, no index in db, fuuuu
-                        PointGeocachingAttributes pga = new PointGeocachingAttributes(Geoget.convertAttribute(at.getString(at.getColumnIndex("value"))), Geoget.isAttributePositive(at.getString(at.getColumnIndex("value"))));
-                        pgas.add(pga);
+                        GeocachingAttribute pga = new GeocachingAttribute(Geoget.convertAttribute(at.getString(at.getColumnIndex("value"))), Geoget.isAttributePositive(at.getString(at.getColumnIndex("value"))));
+                        gcData.attributes.add(pga);
                     }
                 }
                 at.close();
-                gcData.attributes = pgas;
 
-                p.setGeocachingData(gcData);
-                database.close();
+                wpt.gcData = gcData;
+                db.close();
 
                 Intent retIntent = new Intent();
-                retIntent.putExtra(LocusConst.EXTRA_POINT, p);
+                retIntent.putExtra(LocusConst.INTENT_EXTRA_POINT, wpt.getAsBytes());
                 setResult(RESULT_OK, retIntent);
 
             } catch (Exception e) {
-                Toast.makeText(this, R.string.unable_to_load_detail + " " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.unable_to_load_detail) + " " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 
             } finally {
                 finish();
