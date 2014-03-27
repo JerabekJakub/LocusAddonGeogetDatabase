@@ -19,6 +19,23 @@
     </style>
   </head>
   <body>
+$ TODO
+  % Plány do budoucna
+  * zpětný zápis změn do databáze
+$ 3.3.6
+  % Verze 3.3.6
+  _ 2014-03-27
+    * oprava pádu při načítání prázdného listingu
+$ 3.3.5
+  % Verze 3.3.5
+  _ 2014-03-26
+    * zrušení opakovaného načítání waypointů
+    * zobrazení informace, pokud nevyhovuje filtru ani jedna keš
+    * drobné opravy
+$ 3.3.4
+  % Verze 3.3.4
+  _ 2014-03-24
+    * optimalizace načítaných dat - načtení, resp. import by měly být rychlejší (u mě je zrychlení cca 5 vteřin na 1000 keší)
 $ 3.3.3
   % Verze 3.3.3
   _ 2014-03-17

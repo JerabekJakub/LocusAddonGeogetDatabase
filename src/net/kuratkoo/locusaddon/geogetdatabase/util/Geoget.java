@@ -125,27 +125,15 @@ public class Geoget {
     public static int countTerr = 9;
 
     public static Boolean isAvailable(Integer cacheStatus) {
-        if (cacheStatus == 0) {
-            return true;
-        } else {
-            return false;
-        }
+    	return (cacheStatus == 0 ? true : false);
     }
 
     public static Boolean isArchived(Integer cacheStatus) {
-        if (cacheStatus == 2) {
-            return true;
-        } else {
-            return false;
-        }
+        return (cacheStatus == 2 ? true : false);
     }
 
     public static Boolean isFound(Integer dt) {
-        if (dt > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (dt > 0 ? true : false);
     }
 
     public static String convertWaypointType(String waypointType) {
@@ -313,11 +301,7 @@ public class Geoget {
     }
 
     public static Boolean isGeogetDatabase(File f) {
-        if (f.exists() && f.canRead() && f.isFile() && f.getName().endsWith("db3")) {
-            return true;
-        } else {
-            return false;
-        }
+        return (f.exists() && f.canRead() && f.isFile() && f.getName().endsWith("db3") ? true : false);
     }
     
     public static List<String> geocacheSizesFromFilter(SharedPreferences sharedPref){

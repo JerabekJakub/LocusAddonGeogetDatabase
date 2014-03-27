@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">GeoGet Database for Locus</string>
+    <string name="app_name">GeoGet databáze pro Locus</string>
     <string name="pref_path">Nastavení cest</string>
     <string name="pref_db_title">Databáze GeoGetu</string>
     <string name="pref_db_sum">Cesta k databázi GeoGetu (soubor *.db3)</string>
@@ -60,6 +60,7 @@
     <string name="no_db_file_live">Nebyl nalezen soubor s GeoGet databází! Nastavte ji! Vypínám Live mapu.</string>
     <string name="unable_to_load_geocaches">Nepodařilo se načíst kešky!</string>
     <string name="unable_to_load_detail">Nepodařilo se načíst detail kešky!</string>
+    <string name="no_caches_found">Žádné kešky nevyhovují nastavenému filtru!</string>
     <string name="pref_about">O aplikaci</string>
     <string name="pref_donate_title">Přispěj na vývoj!</string>
     <string name="pref_donate_sum">Líbí se ti addon a chtěl bys podpořit další vývoj? Klikni a přispěj pár kaček!</string>
@@ -97,8 +98,14 @@
     <string name="wp_personal_note">Vlastní poznámka:</string>
     
     <string name="about.version_title">Verze</string>
+    <string name="about.version_click"> - klikni pro seznam změn</string>
     <string name="about.contact_title">Kontakt</string>
     <string name="about.contact_text">jerabek.jakub@gmail.com (česky nebo anglicky)</string>
     <string name="about.author_title">Autoři</string>
     <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
+    
+    <string name="changelog_full_title">Seznam změn</string>
+    <string name="changelog_title">Co je nového</string>
+    <string name="changelog_ok_button">OK</string>
+    <string name="changelog_show_full">Zobrazit více</string>
 </resources>

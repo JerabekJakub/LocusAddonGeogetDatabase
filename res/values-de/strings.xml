@@ -59,6 +59,7 @@
     <string name="no_db_file_live">GeoGet Datenbank nicht gefunden! Bitte eingeben! Live Karte aus.</string>
     <string name="unable_to_load_geocaches">Laden der Geocaches nicht möglich!</string>
     <string name="unable_to_load_detail">Laden der Geocachedetails nicht möglich!</string>
+    <string name="no_caches_found">No caches match the filter!</string>
     <string name="pref_about">Über</string>
     <string name="pref_donate_title">Spende für die Entwicklung!</string>
     <string name="pref_donate_sum">Gefällt dir dieses Addon? Möchtest du die Entwicklung unterstützen? Dann klicke hier und spende etwas!</string>
@@ -97,8 +98,14 @@
     <string name="wp_personal_note">Persönliche Anmerkung:</string>
     
     <string name="about.version_title">Version</string>
+    <string name="about.version_click"> - click for changelog</string>
     <string name="about.contact_title">Kontakt</string>
     <string name="about.contact_text">jerabek.jakub@gmail.com (Englisch)</string>
     <string name="about.author_title">Autoren</string>
     <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
+    
+    <string name="changelog_full_title">Change Log</string>
+    <string name="changelog_title">What\'s New</string>
+    <string name="changelog_ok_button">OK</string>
+    <string name="changelog_show_full">more…</string>
 </resources>

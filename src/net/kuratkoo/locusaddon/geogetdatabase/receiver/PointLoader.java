@@ -29,9 +29,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * PointLoader
  * This class is responsible for loading caches to Live Map
  * @author Radim -kuratkoo- Vaculik <kuratkoo@gmail.com>
+ * @author Jakub Jerabek <jerabek.jakub@gmail.com> since 2014-02
  */
 public class PointLoader {
 
@@ -163,11 +163,11 @@ public class PointLoader {
                 sql += ") ";
 
                 if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("found", false)) {
-                    sql = sql + " AND dtfound = 0";
+                    sql += " AND dtfound = 0 ";
                 }
 
                 if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("own", false)) {
-                    sql = sql + " AND author != \"" + PreferenceManager.getDefaultSharedPreferences(context).getString("nick", "") + "\"";
+                    sql += " AND author != \"" + PreferenceManager.getDefaultSharedPreferences(context).getString("nick", "") + "\"";
                 }
 
                 // Filter cache type
@@ -214,10 +214,13 @@ public class PointLoader {
                 	sql += ") ";
                 }
 
-                sql += " AND ((CAST(geocache.x AS REAL) > ? AND CAST(geocache.x AS REAL) < ? AND CAST(geocache.y AS REAL) > ? AND CAST(geocache.y AS REAL) < ?) OR (CAST(waypoint.x AS REAL) > ? AND CAST(waypoint.x AS REAL) < ? AND CAST(waypoint.y AS REAL) > ? AND CAST(waypoint.y AS REAL) < ?))";
+                sql += " AND (" +
+                		"(CAST(geocache.x AS REAL) > ? AND CAST(geocache.x AS REAL) < ? AND CAST(geocache.y AS REAL) > ? AND CAST(geocache.y AS REAL) < ?) " +
+                		"OR (CAST(waypoint.x AS REAL) > ? AND CAST(waypoint.x AS REAL) < ? AND CAST(waypoint.y AS REAL) > ? AND CAST(waypoint.y AS REAL) < ?)" +
+                		")";
                 sql += " GROUP BY geocache.id";
                 Cursor c = db.rawQuery(sql, cond);
-
+                
                 if (this.isCancelled()) {
                     c.close();
                     return null;
@@ -278,6 +281,7 @@ public class PointLoader {
                         pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
                         pgdw.desc = wp.getString(wp.getColumnIndex("cmt"));
                         pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
+
                         String comment = wp.getString(wp.getColumnIndex("comment"));
                         if (comment != null && !comment.equals("")){
                         	pgdw.desc += " <hr><b>" + context.getString(R.string.wp_personal_note) + "</b> " + comment;
@@ -311,8 +315,8 @@ public class PointLoader {
 
             db.close();
             if (exception != null) {
-                Log.w(TAG, exception);
-                Toast.makeText(context, "Error: "+exception.getClass()+ " - " + exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+		        Log.w(TAG, exception);
+		        Toast.makeText(context, "Error: "+exception.getClass()+ " - " + exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
 
             try {

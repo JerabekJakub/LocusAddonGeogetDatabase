@@ -19,6 +19,23 @@
     </style>
   </head>
   <body>
+$ TODO
+  % Future plans
+  * save changes back to database
+$ 3.3.6
+  % Verze 3.3.6
+  _ 2014-03-27
+    * fixed crash while loading empty cache
+$ 3.3.5
+  % Verze 3.3.5
+  _ 2014-03-26
+    * removed repetitive loading waypoints
+    * show information that no cache matches user filter
+    * bug fixes
+$ 3.3.4
+  % Verze 3.3.4
+  _ 2014-03-24
+    * optimalization during loading/import
 $ 3.3.3
   % Version 3.3.3
   _ 2014-03-17

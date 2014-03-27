@@ -59,6 +59,7 @@
     <string name="no_db_file_live">GeoGet database niet gevonden! Stel deze in! Live kaart uit.</string>
     <string name="unable_to_load_geocaches">Niet mogelijk om geocaches te laden!</string>
     <string name="unable_to_load_detail">Niet mogelijk om geocache details te laden!</string>
+    <string name="no_caches_found">No caches match the filter!</string>
     <string name="pref_about">Over</string>
     <string name="pref_donate_title">Doneer voor de ontwikkeling!</string>
     <string name="pref_donate_sum">Vind u dit een handige add-on? Wilt u toekomstige ontwikkeling ondersteunen? Klik en doneer een bijdrage!</string>
@@ -96,8 +97,14 @@
     <string name="wp_personal_note">Persoonlijke notitie:</string>
     
     <string name="about.version_title">Versie</string>
+    <string name="about.version_click"> - click for changelog</string>
     <string name="about.contact_title">Contact</string>
     <string name="about.contact_text">jerabek.jakub@gmail.com (Engels)</string>
     <string name="about.author_title">Auteurs</string>
     <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
+    
+	<string name="changelog_full_title">Change Log</string>
+    <string name="changelog_title">What\'s New</string>
+    <string name="changelog_ok_button">OK</string>
+    <string name="changelog_show_full">more…</string>
 </resources>

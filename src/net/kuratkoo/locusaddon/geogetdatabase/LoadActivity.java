@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,6 +23,7 @@ import locus.api.objects.geocaching.GeocachingData;
 import locus.api.objects.geocaching.GeocachingLog;
 import locus.api.objects.geocaching.GeocachingWaypoint;
 import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
+import net.kuratkoo.locusaddon.geogetdatabase.util.NoCachesFoundException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -78,7 +78,7 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 
         @Override
         protected void onProgressUpdate(Integer... values) {
-            progress.setMessage(getString(R.string.loading) + " " + values[0] + " " + getString(R.string.geocaches));
+            progress.setMessage(getString(R.string.loading) + " " + values[0] + "/" + values[1] + " "+ getString(R.string.geocaches));
         }
 
         protected Exception doInBackground(Waypoint... pointSet) {
@@ -112,8 +112,7 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                 cond2[6] = cond[2];
                 cond2[7] = cond[3];
                 
-                Cursor c;
-                Cursor cWP;
+                long t1 = System.nanoTime();
                 String sql = "SELECT x, y, id FROM geocache WHERE cachestatus IN (0";
                 String sqlWP = "SELECT waypoint.x, waypoint.y, waypoint.id " +
                 		"FROM waypoint LEFT JOIN geocache ON geocache.id = waypoint.id " +
@@ -136,8 +135,8 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 
                 // Found by user
                 if (!PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getBoolean("found", false)) {
-                    sql += " AND dtfound = 0";
-                    sqlWP += " AND dtfound = 0";
+                    sql += " AND dtfound = 0 ";
+                    sqlWP += " AND dtfound = 0 ";
                 }
 
                 // Owned by user
@@ -211,14 +210,19 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                 sql += " AND CAST(x AS REAL) > ? AND CAST(x AS REAL) < ? AND CAST(y AS REAL) > ? AND CAST(y AS REAL) < ?";
                 sqlWP += " AND (CAST(waypoint.x AS REAL) > ? AND CAST(waypoint.x AS REAL) < ? AND CAST(waypoint.y AS REAL) > ? AND CAST(waypoint.y AS REAL) < ?) " +
                 		"AND (CAST(geocache.x AS REAL) <= ? OR CAST(geocache.x AS REAL) >= ? OR CAST(geocache.y AS REAL) <= ? OR CAST(geocache.y AS REAL) >= ?)";
-                c = db.rawQuery(sql, cond);
-                cWP = db.rawQuery(sqlWP, cond2);
+                Cursor c = db.rawQuery(sql, cond);
+                Cursor cWP = db.rawQuery(sqlWP, cond2);
 
+                // no caches found
+                if (c.getCount() == 0 && cWP.getCount() == 0) {
+                	return new NoCachesFoundException();
+                }
+                
                 /** Load GC codes **/
                 List<Pair> gcCodes = new ArrayList<Pair>();
                 radius = radius * 70 * 1000;
                 // Caches
-                while (c.moveToNext()){
+                while (c.moveToNext()) {
                     if (this.isCancelled()) {
                         c.close();
                         return null;
@@ -249,96 +253,103 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                 c.close();
                 cWP.close();
 
-                int count = 0;
                 int limit = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("limit", "0"));
 
-                
-                if (limit > 0) {
-                	// remove duplicity
-                    gcCodes = new ArrayList<Pair>(new HashSet<Pair>(gcCodes));
-                    // sort 
+                // Limit
+                if (limit > 0 && gcCodes.size() > limit) {
+                    // sort caches
                     Collections.sort(gcCodes, new Comparator<Pair>() {
                         public int compare(Pair p1, Pair p2) {
                             return p1.distance.compareTo(p2.distance);
                         }
                     });
+                    
+                    // cut off the rest
+                    gcCodes = gcCodes.subList(0, limit);
+                }
+                
+                // columns
+                String columns = " geocache.id, x, y, name, difficulty, terrain, cachesize, cachetype, cachestatus, dtfound, author ";
+                if (importCaches){
+                	columns += ", author, country, state, comment, hint, shortdesc, longdesc, geocache.dtupdate2, dthidden, shortdescflag, longdescflag ";
                 }
 
-                /** Load geocaches from DB **/
+                // GC codes
+                String codesCond = "(\""+gcCodes.remove(0).gcCode+"\"";
                 for (Pair pair : gcCodes) {
+                	codesCond += ",\""+pair.gcCode+"\"";
+                }
+                codesCond += ")";
+                
+                String query = "SELECT " + columns + " " +
+                		"FROM geocache " +
+                		"LEFT JOIN geolist ON geolist.id = geocache.id " +
+                		"WHERE geocache.id IN " + codesCond;
+                Cursor caches = db.rawQuery(query, null);
+                int count = 0;
+                int total = caches.getCount();
+                long t2 = System.nanoTime();
+                while(caches.moveToNext()) {
                     if (this.isCancelled()) {
+                    	caches.close();
                         return null;
-                    }
+                    }                    
 
-                    if (limit > 0 && count >= limit) {
-                    	break;
-                    }
-
+                    publishProgress(new Integer[]{++count, total});
+                    
                     byte[] buff = new byte[100000];
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());
-                    String gcCode = pair.gcCode;
-                    
-                    publishProgress(++count);
-                    
-                    String columns = " x, y, name, difficulty, terrain, cachesize, cachetype, cachestatus, dtfound, author ";
-                    if (importCaches){
-                    	columns += ", author, country, state, comment, hint, shortdesc, longdesc, geocache.dtupdate2, dthidden, shortdescflag, longdescflag";
-                    }
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());                   
 
-                    c = db.rawQuery(
-                    		"SELECT " + columns + " FROM geocache LEFT JOIN geolist ON geolist.id = geocache.id WHERE geocache.id = ?",
-                    		new String[]{gcCode});
-                    c.moveToNext();
-                    
                     Location loc = new Location(TAG);
-                    loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
-                    loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
-                    Waypoint wpt = new Waypoint(c.getString(c.getColumnIndex("name")), loc);
+                    loc.setLatitude(caches.getDouble(caches.getColumnIndex("x")));
+                    loc.setLongitude(caches.getDouble(caches.getColumnIndex("y")));
+                    Waypoint wpt = new Waypoint(caches.getString(caches.getColumnIndex("name")), loc);
                     
                     GeocachingData gcData = new GeocachingData();
-
-                    gcData.setCacheID(gcCode);
-                    gcData.setName(c.getString(c.getColumnIndex("name")));
-                    gcData.difficulty = c.getFloat(c.getColumnIndex("difficulty"));
-                    gcData.terrain = c.getFloat(c.getColumnIndex("terrain"));
-                    gcData.setContainer(Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize"))));
-                    gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));                    
-                    gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
-                    gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
-                    gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
-                    gcData.setOwner(c.getString(c.getColumnIndex("author")));
-                    gcData.setPlacedBy(c.getString(c.getColumnIndex("author")));
+                    gcData.setCacheID(caches.getString(caches.getColumnIndex("id")));
+                    gcData.setName(caches.getString(caches.getColumnIndex("name")));
+                    gcData.difficulty = caches.getFloat(caches.getColumnIndex("difficulty"));
+                    gcData.terrain = caches.getFloat(caches.getColumnIndex("terrain"));
+                    gcData.setContainer(Geoget.convertCacheSize(caches.getString(caches.getColumnIndex("cachesize"))));
+                    gcData.type = Geoget.convertCacheType(caches.getString(caches.getColumnIndex("cachetype")));                    
+                    gcData.available = Geoget.isAvailable(caches.getInt(caches.getColumnIndex("cachestatus")));
+                    gcData.archived = Geoget.isArchived(caches.getInt(caches.getColumnIndex("cachestatus")));
+                    gcData.found = Geoget.isFound(caches.getInt(caches.getColumnIndex("dtfound")));
+                    gcData.setOwner(caches.getString(caches.getColumnIndex("author")));
+                    gcData.setPlacedBy(caches.getString(caches.getColumnIndex("author")));
                     gcData.computed = false;
-                    
+
                     if (importCaches) {
-	                    gcData.setCountry(c.getString(c.getColumnIndex("country")));
-	                    gcData.setState(c.getString(c.getColumnIndex("state")));
-	                    gcData.setNotes(c.getString(c.getColumnIndex("comment")));
+	                    gcData.setCountry(caches.getString(caches.getColumnIndex("country")));
+	                    gcData.setState(caches.getString(caches.getColumnIndex("state")));
+	                    gcData.setNotes(caches.getString(caches.getColumnIndex("comment")));
 	
-	                    gcData.setEncodedHints(c.getString(c.getColumnIndex("hint")));
+	                    gcData.setEncodedHints(caches.getString(caches.getColumnIndex("hint")));
 	
 	                    gcData.setShortDescription(
-	                    		Geoget.decodeZlib(c.getBlob(c.getColumnIndex("shortdesc")), buff),
-	                    		(c.getInt(c.getColumnIndex("shortdescflag")) == 1 ? true : false));
+	                    		Geoget.decodeZlib(caches.getBlob(caches.getColumnIndex("shortdesc")), buff),
+	                    		(caches.getInt(caches.getColumnIndex("shortdescflag")) == 1 ? true : false));
 	
 	                    gcData.setLongDescription(
-	                    		Geoget.decodeZlib(c.getBlob(c.getColumnIndex("longdesc")), buff),
-	                    		(c.getInt(c.getColumnIndex("longdescflag")) == 1 ? true : false));
+	                    		Geoget.decodeZlib(caches.getBlob(caches.getColumnIndex("longdesc")), buff),
+	                    		(caches.getInt(caches.getColumnIndex("longdescflag")) == 1 ? true : false));
 
 	                    Date date = new Date();
 	                    gcData.dateCreated = date.getTime();
-	                    gcData.lastUpdated = c.getLong(c.getColumnIndex("dtupdate2"));
-	                    gcData.hidden = dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime();
+	                    gcData.lastUpdated = caches.getLong(caches.getColumnIndex("dtupdate2"));
+	                    try {
+	                    	gcData.hidden = dateFormat.parse(caches.getString(caches.getColumnIndex("dthidden"))).getTime();
+	                    } catch(ParseException ex) {
+	                    	gcData.hidden = 0;
+	                    }
                     }
-                    c.close();
                     
                     /** Add PMO tag, favorite points and elevation **/
-                    String query = "SELECT geotag.id, geotagcategory.value AS key, geotagvalue.value FROM geotag " +
+                    String queryTags = "SELECT geotag.id, geotagcategory.value AS key, geotagvalue.value FROM geotag " +
                     		"INNER JOIN geotagcategory ON geotagcategory.key = geotag.ptrkat " +
                     		"INNER JOIN geotagvalue ON geotagvalue.key = geotag.ptrvalue " +
                     		"WHERE geotagcategory.value IN (\"favorites\", \"Elevation\", \"PMO\") AND geotag.id = ?";
-                    Cursor tags = db.rawQuery(query, new String[]{gcCode});
-
+                    Cursor tags = db.rawQuery(queryTags, new String[]{gcData.getCacheID()});
                     while (tags.moveToNext()){
                    		String key = tags.getString(tags.getColumnIndex("key"));
                    		String value = tags.getString(tags.getColumnIndex("value"));
@@ -360,6 +371,7 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 
                     while (wp.moveToNext()) {
                         if (this.isCancelled()) {
+                        	caches.close();
                             wp.close();
                             return null;
                         }
@@ -375,7 +387,7 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                         // Personal note from Geoget
                         String comment = wp.getString(wp.getColumnIndex("comment"));
                         if (comment != null && !comment.equals("")){
-                        	pgdw.desc += " <br><b>" + getString(R.string.wp_personal_note) + "</b> " + comment;
+                        	pgdw.desc += " <hr><b>" + getString(R.string.wp_personal_note) + "</b> " + comment;
                         }
 
                         gcData.waypoints.add(pgdw);
@@ -391,6 +403,7 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 	
 	                    while (logs.moveToNext()) {
 	                        if (this.isCancelled()) {
+	                        	caches.close();
 	                            logs.close();
 	                            return null;
 	                        }
@@ -399,7 +412,11 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 	                        log.finder = logs.getString(logs.getColumnIndex("finder"));
 	                        log.logText = Geoget.decodeZlib(logs.getBlob(logs.getColumnIndex("logtext")), buff);
 	                        log.type = Geoget.convertLogType(logs.getString(logs.getColumnIndex("type")));
-	                       	log.date = dateFormat.parse(logs.getString(logs.getColumnIndex("dt"))).getTime();
+	                        try {
+	                        	log.date = dateFormat.parse(logs.getString(logs.getColumnIndex("dt"))).getTime();
+	                        } catch (ParseException ex){
+	                        	log.date = 0;
+	                        }
 	                        
 	                        gcData.logs.add(log);
 	                    }
@@ -416,17 +433,16 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                     }
                     packWpt.addWaypoint(wpt);
                 }
-                
+                caches.close();
+                long t3 = System.nanoTime();
+                Log.d("VOLDIK", "Pøíprava: " + (t2-t1)/1000000);
+                Log.d("VOLDIK", "Cyklus: " + (t3-t2)/1000000);
+                Log.d("VOLDIK", "Celkem: " + (t3-t1)/1000000);
                 if (this.isCancelled()) {
                     return null;
                 }
                 return null;
-            } catch (ParseException e){
-            	Toast.makeText(LoadActivity.this, "Chyba pri zpracovani data... ", Toast.LENGTH_LONG).show();
-                return e;
             } catch (Exception e) {
-            	e.printStackTrace();
-            	Log.e("VOLDIK", e.getLocalizedMessage()+", "+e.getMessage()+", "+e.getStackTrace());
                 return e;
             }
         }
@@ -437,7 +453,12 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
             progress.dismiss();
             db.close();
             if (ex != null) {
-                Toast.makeText(LoadActivity.this, getString(R.string.unable_to_load_geocaches) + " (" + ex.getLocalizedMessage() + ")", Toast.LENGTH_LONG).show();
+            	if (ex.getClass().getName().contains("NoCachesFoundException")) {
+                	Toast.makeText(LoadActivity.this, getString(R.string.no_caches_found), Toast.LENGTH_LONG).show();
+            	} else {
+            		ex.printStackTrace();
+            		Toast.makeText(LoadActivity.this, getString(R.string.unable_to_load_geocaches) + " (" + ex.getClass() + ")", Toast.LENGTH_LONG).show();
+                }
                 LoadActivity.this.finish();
                 return;
             }
@@ -515,24 +536,29 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 		}
         
         Intent intent = getIntent();
-
         if (LocusUtils.isIntentMainFunction(intent)) {
-        	LocusUtils.handleIntentMainFunction(intent,
-        			new LocusUtils.OnIntentMainFunction() {
+        	
+        	LocusUtils.handleIntentMainFunction(intent, new LocusUtils.OnIntentMainFunction() {
 				@Override
 				public void onReceived(Location locGps, Location locMapCenter) {
 					// get map center
 					point = new Waypoint("Map center", locMapCenter);
 				}
-				
+
 				@Override
 				public void onFailed() {
 					Toast.makeText(LoadActivity.this, "Wrong INTENT!", Toast.LENGTH_LONG).show();
 				}
 			});
+        } else if (LocusUtils.isIntentPointTools(intent)) {
+    		try {
+				point = LocusUtils.handleIntentPointTools(this, intent);
+			} catch (RequiredVersionMissingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
-        
-        
+
         loadAsyncTask = new LoadAsyncTask();
         loadAsyncTask.execute(new Waypoint[]{point});
     }

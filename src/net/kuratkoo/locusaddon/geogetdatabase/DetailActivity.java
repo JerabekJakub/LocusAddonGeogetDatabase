@@ -3,6 +3,7 @@ package net.kuratkoo.locusaddon.geogetdatabase;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -13,7 +14,6 @@ import locus.api.objects.extra.Waypoint;
 import locus.api.objects.geocaching.GeocachingAttribute;
 import locus.api.objects.geocaching.GeocachingData;
 import locus.api.objects.geocaching.GeocachingLog;
-import locus.api.objects.geocaching.GeocachingWaypoint;
 import net.kuratkoo.locusaddon.geogetdatabase.util.Geoget;
 import android.app.Activity;
 import android.content.Intent;
@@ -21,7 +21,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -32,6 +31,11 @@ import android.widget.Toast;
 public class DetailActivity extends Activity {
 
     private static final String TAG = "LocusAddonGeogetDatabase|DetailActivity";
+    private Cursor c;
+    private Cursor at;
+    private Cursor logs;
+    private Cursor tags;
+    private SQLiteDatabase db;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,7 +43,6 @@ public class DetailActivity extends Activity {
 
         Intent intent = getIntent();
 
-        Log.v(TAG, "Nacitam detaily z databaze...");
         // Check path to database.
         File fd;
         String database = PreferenceManager.getDefaultSharedPreferences(this).getString("db", "");
@@ -61,12 +64,12 @@ public class DetailActivity extends Activity {
 
                 byte[] buff = new byte[100000];
 
-                SQLiteDatabase db = SQLiteDatabase.openDatabase(
+                db = SQLiteDatabase.openDatabase(
                 		URLDecoder.decode(database, "UTF-8"), 
                 		null, 
                 		SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-                Cursor c = db.rawQuery(
-                		"SELECT * FROM geocache LEFT JOIN geolist ON geolist.id = geocache.id WHERE geocache.id = ?",
+                c = db.rawQuery(
+                		"SELECT geocache.*, shortdesc, shortdescflag, longdesc, longdescflag, hint FROM geocache LEFT JOIN geolist ON geolist.id = geocache.id WHERE geocache.id = ?",
                 		new String[]{cacheId});
                 c.moveToNext();
 
@@ -96,7 +99,11 @@ public class DetailActivity extends Activity {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());
                 gcData.dateCreated = date.getTime();
                 gcData.lastUpdated = c.getLong(c.getColumnIndex("dtupdate2"));
-                gcData.hidden = dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime();
+                try {
+                    gcData.hidden = dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime();
+                } catch(ParseException ex) {
+                	gcData.hidden = 0;
+                }
 
                 // Try to get files
                 String attachPath = PreferenceManager.getDefaultSharedPreferences(this).getString("attach", "");
@@ -129,14 +136,13 @@ public class DetailActivity extends Activity {
                 gcData.setLongDescription(
                 		Geoget.decodeZlib(c.getBlob(c.getColumnIndex("longdesc")), buff),
                 		(c.getInt(c.getColumnIndex("longdescflag")) == 1 ? true : false));
-                c.close();
                 
                 /** Add PMO tag, number of favorites and elevation **/
                 String query = "SELECT geotagcategory.value AS key, geotagvalue.value FROM geotag " +
                 		"INNER JOIN geotagcategory ON geotagcategory.key = geotag.ptrkat " +
                 		"INNER JOIN geotagvalue ON geotagvalue.key = geotag.ptrvalue " +
                 		"WHERE geotagcategory.value IN (\"favorites\", \"Elevation\", \"PMO\") AND geotag.id = ?";
-                Cursor tags = db.rawQuery(query, new String[]{gcData.getCacheID()});
+                tags = db.rawQuery(query, new String[]{gcData.getCacheID()});
 
                 while (tags.moveToNext()){
                		String key = tags.getString(tags.getColumnIndex("key"));
@@ -150,50 +156,29 @@ public class DetailActivity extends Activity {
                 		wpt.getLocation().setAltitude(Double.parseDouble(value));
                		}
                	}
-                tags.close();
-
-
-                /** Add waypoints to Geocache **/
-                Cursor wp = db.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid, comment, flag FROM waypoint WHERE id = ?", new String[]{gcData.getCacheID()});
-
-                while (wp.moveToNext()) {
-                	GeocachingWaypoint pgdw = new GeocachingWaypoint();
-                    pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
-                    pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
-                    pgdw.name = wp.getString(wp.getColumnIndex("name"));
-                    pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
-                    pgdw.desc = wp.getString(wp.getColumnIndex("cmt"));
-                    pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
-
-                    // Personal note from Geoget
-                    String comment = wp.getString(wp.getColumnIndex("comment"));
-                    if (comment != null && !comment.equals("")){
-                    	pgdw.desc += " <hr><b>" + getText(R.string.wp_personal_note) + "</b> " + comment;
-                    }
-
-                    gcData.waypoints.add(pgdw);
-                }
-                wp.close();
 
                 /** Add logs to Geocache **/                    
                 String logsLimit = PreferenceManager.getDefaultSharedPreferences(DetailActivity.this).getString("logs_count", "0");
-                Cursor logs = db.rawQuery(
+                logs = db.rawQuery(
                 		"SELECT dt, type, finder, logtext FROM geolog WHERE id = ? LIMIT ?",
                 		new String[]{gcData.getCacheID(), logsLimit});
 
                 while (logs.moveToNext()) {
                 	GeocachingLog pgdl = new GeocachingLog();
-                    pgdl.date = dateFormat.parse(logs.getString(logs.getColumnIndex("dt"))).getTime();
+                	
                     pgdl.finder = logs.getString(logs.getColumnIndex("finder"));
                     pgdl.logText = Geoget.decodeZlib(logs.getBlob(logs.getColumnIndex("logtext")), buff);
                     pgdl.type = Geoget.convertLogType(logs.getString(logs.getColumnIndex("type")));
-
+                    try {
+                        pgdl.date = dateFormat.parse(logs.getString(logs.getColumnIndex("dt"))).getTime();
+                    } catch (ParseException ex) {
+                    	pgdl.date = 0;
+                    }                    
 					gcData.logs.add(pgdl);
                 }
-                logs.close();
 
                 /** Add attributes to Geocache **/
-                Cursor at = db.rawQuery("SELECT gtv.value, gtc.value AS category FROM geotag gt JOIN geotagvalue gtv ON gt.ptrvalue = gtv.key JOIN geotagcategory gtc ON gtc.key = gt.ptrkat WHERE gt.id = ?", new String[]{gcData.getCacheID()});
+                at = db.rawQuery("SELECT gtv.value, gtc.value AS category FROM geotag gt JOIN geotagvalue gtv ON gt.ptrvalue = gtv.key JOIN geotagcategory gtc ON gtc.key = gt.ptrkat WHERE gt.id = ?", new String[]{gcData.getCacheID()});
 
                 while (at.moveToNext()) {
                     if (at.getString(at.getColumnIndex("category")).equals("attribute")) { // is Attribute, no index in db, fuuuu
@@ -201,20 +186,24 @@ public class DetailActivity extends Activity {
                         gcData.attributes.add(pga);
                     }
                 }
-                at.close();
 
                 wpt.gcData = gcData;
-                db.close();
 
                 Intent retIntent = new Intent();
                 retIntent.putExtra(LocusConst.INTENT_EXTRA_POINT, wpt.getAsBytes());
                 setResult(RESULT_OK, retIntent);
 
             } catch (Exception e) {
+            	e.printStackTrace();
                 Toast.makeText(this, getString(R.string.unable_to_load_detail) + " " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 
             } finally {
-                finish();
+            	if(tags != null){tags.close();}
+            	if(at != null){at.close();}
+            	if(logs != null){logs.close();}
+            	if(c != null){c.close();}
+            	if(db != null){db.close();} 
+            	finish();
             }
         }
     }

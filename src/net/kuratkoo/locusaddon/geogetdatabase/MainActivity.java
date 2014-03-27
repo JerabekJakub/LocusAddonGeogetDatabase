@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -41,11 +42,16 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
     private EditTextPreference limit;
     private CheckBoxPreference own;
     private Preference donate;
+    private Preference mail;
+    private Preference changelog;
+    private ChangeLog cl;
 
     @SuppressWarnings("deprecation")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        cl = new ChangeLog(this);
 
         addPreferencesFromResource(R.xml.prefs);
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
@@ -53,7 +59,27 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         donate = (Preference) getPreferenceScreen().findPreference("donate");
         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=kuratkoo%40gmail%2ecom&lc=CZ&item_name=Locus%20-%20addon%20GeoGet%20Database&currency_code=USD"));
         donate.setIntent(i);
+        
+        mail = (Preference) getPreferenceScreen().findPreference("contact");
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","jerabek.jakub@gmail.com", null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Geoget Addon for Locus");
+        mail.setIntent(emailIntent);
 
+        changelog = (Preference) getPreferenceScreen().findPreference("version");
+
+        changelog.setSummary(editPreferenceSummary(getString(R.string.pref_limit_nolimit), getText(R.string.pref_limit_sum)));
+        changelog.setSummary(Html.fromHtml("<b>" + getString(R.string.about_version_text) + "</b><i> " + getText(R.string.about_version_click) + "</i>"));
+        changelog.setOnPreferenceClickListener(new OnPreferenceClickListener(){
+
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+	            cl.getFullLogDialog().show();
+				return false;
+			}
+
+        });
+        
+        
         own = (CheckBoxPreference) getPreferenceScreen().findPreference("own");
 
         dbPick = (Preference) getPreferenceScreen().findPreference("db_pick");
@@ -146,7 +172,6 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         }
         
         // Show changelog if this is first run of this version
-        ChangeLog cl = new ChangeLog(this);
         if (cl.firstRun()){
             cl.getLogDialog().show();
         }

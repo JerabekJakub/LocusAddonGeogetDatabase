@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.kuratkoo.locusaddon.geogetdatabase"
-    android:versionCode="19"
-    android:versionName="3.3.3" >
+    android:versionCode="22"
+    android:versionName="3.3.6" >
 
     <uses-sdk
         android:minSdkVersion="7"
@@ -35,10 +35,9 @@
             <!-- thanks to this, app appear in sub-menu of every point -->
             <intent-filter>
                 <action android:name="locus.api.android.INTENT_ITEM_POINT_TOOLS" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            
+
             <!-- thanks to this, app appear in function list -->
             <intent-filter>
                 <action android:name="locus.api.android.INTENT_ITEM_MAIN_FUNCTION" />
