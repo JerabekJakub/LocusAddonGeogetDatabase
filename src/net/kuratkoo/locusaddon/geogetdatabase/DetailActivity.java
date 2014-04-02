@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import locus.api.android.utils.LocusConst;
@@ -69,7 +68,9 @@ public class DetailActivity extends Activity {
                 		null, 
                 		SQLiteDatabase.NO_LOCALIZED_COLLATORS);
                 c = db.rawQuery(
-                		"SELECT geocache.*, shortdesc, shortdescflag, longdesc, longdescflag, hint FROM geocache LEFT JOIN geolist ON geolist.id = geocache.id WHERE geocache.id = ?",
+                		"SELECT geocache.*, shortdesc, shortdescflag, longdesc, longdescflag, hint " +
+                		" FROM geocache LEFT JOIN geolist ON geolist.id = geocache.id " +
+                		" WHERE geocache.id = ?",
                 		new String[]{cacheId});
                 c.moveToNext();
 
@@ -95,14 +96,13 @@ public class DetailActivity extends Activity {
                 gcData.setNotes(c.getString(c.getColumnIndex("comment")));
                 gcData.computed = false;
 
-                Date date = new Date();
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());
-                gcData.dateCreated = date.getTime();
                 gcData.lastUpdated = c.getLong(c.getColumnIndex("dtupdate2"));
                 try {
-                    gcData.hidden = dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime();
+                    gcData.dateCreated = dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime();
                 } catch(ParseException ex) {
-                	gcData.hidden = 0;
+                	ex.printStackTrace();
+                	gcData.dateCreated = 0;
                 }
 
                 // Try to get files

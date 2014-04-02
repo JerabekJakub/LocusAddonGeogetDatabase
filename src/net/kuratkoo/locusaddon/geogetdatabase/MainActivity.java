@@ -66,7 +66,6 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
         mail.setIntent(emailIntent);
 
         changelog = (Preference) getPreferenceScreen().findPreference("version");
-
         changelog.setSummary(editPreferenceSummary(getString(R.string.pref_limit_nolimit), getText(R.string.pref_limit_sum)));
         changelog.setSummary(Html.fromHtml("<b>" + getString(R.string.about_version_text) + "</b><i> " + getText(R.string.about_version_click) + "</i>"));
         changelog.setOnPreferenceClickListener(new OnPreferenceClickListener(){
@@ -207,10 +206,14 @@ public class MainActivity extends PreferenceActivity implements OnSharedPreferen
 
         if (key.equals("radius")) {
             String value = sharedPreferences.getString(key, "1");
-            if (value.equals("") || !value.matches("[0-9]+") || value.equals("0") || value.equals("00") || value.equals("000")) {
-                Toast.makeText(this, getString(R.string.pref_logs_error), Toast.LENGTH_LONG).show();
+            if (value.equals("") || !value.matches("[1-9][0-9]*|[0-9]\\.[0-9]")) {
+                Toast.makeText(this, getString(R.string.pref_radius_error), Toast.LENGTH_LONG).show();
                 value = "1";
                 radius.setText(value);
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("radius", value);
+                editor.commit();
             }
             radius.setSummary(editPreferenceSummary(value + " km", getText(R.string.pref_radius_sum)));
         }

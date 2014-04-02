@@ -22,6 +22,18 @@
 $ TODO
   % Plány do budoucna
   * zpětný zápis změn do databáze
+  * filtrování vypočítaných keší
+$ 3.3.8
+  % Verze 3.3.8
+  _ 2014-03-31
+    * oprava opravy chyby z verze 3.3.7 :-)
+    * do složky Downloads se v případě chyby při načítání uloží soubor addonERRvystup.txt a popisem chyby - prosím o jeho zaslání
+    * do složky Downloads se ukládají časy načítání keší - v dalších verzích bude odstraněno
+    * <b>pokud vám načítání přijde pomalé, proveďte v GeoGetu: Pluginy -> Oprava databáze -> Vacuum databáze</b>
+$ 3.3.7
+  % Verze 3.3.7
+  _ 2014-03-30
+    * oprava chyby, když nejsou žádné keše k dispozici
 $ 3.3.6
   % Verze 3.3.6
   _ 2014-03-27

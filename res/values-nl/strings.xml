@@ -35,7 +35,7 @@
     <string name="pref_logs_error">Aantal logs moet zich tussen 0 en 99 bevinden</string>
     <string name="pref_radius_title">Afstand radius</string>
     <string name="pref_radius_sum">Afstand radius in km voor laden van geocaches in Locus</string>
-    <string name="pref_radius_error">Radius moet zich tussen 1 en 999 bevinden</string>
+    <string name="pref_radius_error">Radius moet zich tussen 0.1 en 9.9 of tussen 10 en 999 bevinden</string>
     <string name="pref_limit_title">Aantal Geocaches</string>
     <string name="pref_limit_sum">Aantal te laden geocaches. Bij waarde 0 wordt dit niet toegepast. (ongelimiteerd)</string>
     <string name="pref_limit_nolimit">geen limiet</string>

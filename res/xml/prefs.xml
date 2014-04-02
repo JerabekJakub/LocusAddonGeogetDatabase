@@ -203,21 +203,13 @@
             android:summary="@string/pref_nick_sum"
             android:title="@string/pref_nick_title" />
 
-        <CheckBoxPreference
+        <CheckBoxPreference android:defaultValue="false" android:key="own" android:summary="@string/pref_own_sum" android:title="@string/pref_own_title" /><CheckBoxPreference android:defaultValue="false" android:key="found" android:summary="@string/pref_found_sum" android:title="@string/pref_found_title" /><CheckBoxPreference
             android:defaultValue="false"
             android:key="disable"
             android:summary="@string/pref_disable_sum"
             android:title="@string/pref_disable_title" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="found"
-            android:summary="@string/pref_found_sum"
-            android:title="@string/pref_found_title" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="own"
-            android:summary="@string/pref_own_sum"
-            android:title="@string/pref_own_title" />
+        
+        
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="archive"
@@ -235,11 +227,11 @@
             android:defaultValue="1"
             android:key="radius"
             android:maxLength="3"
-            android:numeric="integer"
+            android:numeric="decimal"
             android:summary="@string/pref_radius_sum"
             android:title="@string/pref_radius_title" />
         <EditTextPreference
-            android:defaultValue="20"
+            android:defaultValue="15"
             android:key="logs_count"
             android:maxLength="2"
             android:numeric="integer"

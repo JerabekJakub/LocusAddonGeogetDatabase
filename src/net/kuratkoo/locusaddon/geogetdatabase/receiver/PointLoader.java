@@ -60,7 +60,6 @@ public class PointLoader {
     }
 
     public void run() {
-    	
     	final boolean liveMap = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("livemap", false);
     	final String database = PreferenceManager.getDefaultSharedPreferences(context).getString("db", "");
     	
@@ -110,6 +109,7 @@ public class PointLoader {
 
         private PackWaypoints pd;
         private SQLiteDatabase db;
+        private Cursor c;
 
         @Override
         protected void onPreExecute() {
@@ -219,47 +219,39 @@ public class PointLoader {
                 		"OR (CAST(waypoint.x AS REAL) > ? AND CAST(waypoint.x AS REAL) < ? AND CAST(waypoint.y AS REAL) > ? AND CAST(waypoint.y AS REAL) < ?)" +
                 		")";
                 sql += " GROUP BY geocache.id";
-                Cursor c = db.rawQuery(sql, cond);
-                
-                if (this.isCancelled()) {
-                    c.close();
-                    return null;
-                }
+                c = db.rawQuery(sql, cond);
 
                 while (c.moveToNext()) {
-                    if (this.isCancelled()) {
-                        c.close();
-                        return null;
-                    }
+
                     Location loc = new Location(TAG);
-                    loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
-                    loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
-                    Waypoint p = new Waypoint(c.getString(c.getColumnIndex("name")), loc);
+                    loc.setLatitude(c.getDouble(1));
+                    loc.setLongitude(c.getDouble(2));
+                    Waypoint p = new Waypoint(c.getString(3), loc);
 
                     GeocachingData gcData = new GeocachingData();
-                    gcData.setCacheID(c.getString(c.getColumnIndex("id")));
-                    gcData.setName(c.getString(c.getColumnIndex("name")));
-                    gcData.difficulty = c.getFloat(c.getColumnIndex("difficulty"));
-                    gcData.terrain = c.getFloat(c.getColumnIndex("terrain"));
-                    gcData.setContainer(Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize"))));
-                    gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));
-                    gcData.setOwner(c.getString(c.getColumnIndex("author")));
-                    gcData.setPlacedBy(c.getString(c.getColumnIndex("author")));
+                    gcData.setCacheID(c.getString(0));
+                    gcData.setName(c.getString(3));
+                    gcData.difficulty = c.getFloat(4);
+                    gcData.terrain = c.getFloat(5);
+                    gcData.setContainer(Geoget.convertCacheSize(c.getString(6)));
+                    gcData.type = Geoget.convertCacheType(c.getString(7));
+                    gcData.setOwner(c.getString(10));
+                    gcData.setPlacedBy(c.getString(10));
 
-                    gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
-                    gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
-                    gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
+                    gcData.available = Geoget.isAvailable(c.getInt(8));
+                    gcData.archived = Geoget.isArchived(c.getInt(8));
+                    gcData.found = Geoget.isFound(c.getInt(9));
                     gcData.computed = false;
   
                     /** Add PMO tag **/
-                    String query = "SELECT geotagcategory.value AS key, geotagvalue.value FROM geotag " +
+                    String query = "SELECT geotagvalue.value FROM geotag " +
                     		"INNER JOIN geotagcategory ON geotagcategory.key = geotag.ptrkat " +
                     		"INNER JOIN geotagvalue ON geotagvalue.key = geotag.ptrvalue " +
                     		"WHERE geotagcategory.value = \"PMO\" AND geotag.id = ?";
                     Cursor tags = db.rawQuery(query, new String[]{gcData.getCacheID()});
 
                     while (tags.moveToNext()){
-                   		if (tags.getString(tags.getColumnIndex("value")).equals("X")) {
+                   		if (tags.getString(0).equals("X")) {
                    			gcData.premiumOnly = true;
                    		}
                    	}
@@ -269,40 +261,38 @@ public class PointLoader {
                     Cursor wp = db.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid, comment FROM waypoint WHERE id = ?", new String[]{gcData.getCacheID()});
 
                     while (wp.moveToNext()) {
-                        if (this.isCancelled()) {
-                            wp.close();
-                            return null;
-                        }
-
                         GeocachingWaypoint pgdw = new GeocachingWaypoint();
-                        pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
-                        pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
-                        pgdw.name = wp.getString(wp.getColumnIndex("name"));
-                        pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
-                        pgdw.desc = wp.getString(wp.getColumnIndex("cmt"));
-                        pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
+                        pgdw.setLat(wp.getDouble(0));
+                        pgdw.setLon(wp.getDouble(1));
+                        pgdw.setName(wp.getString(2));
+                        pgdw.setType(Geoget.convertWaypointType(wp.getString(3)));
+                        pgdw.setCode(wp.getString(5));
 
-                        String comment = wp.getString(wp.getColumnIndex("comment"));
+                        String desc = wp.getString(4);
+                        String comment = wp.getString(6);
                         if (comment != null && !comment.equals("")){
-                        	pgdw.desc += " <hr><b>" + context.getString(R.string.wp_personal_note) + "</b> " + comment;
+                        	desc += " <hr><b>" + context.getString(R.string.wp_personal_note) + "</b> " + comment;
                         }
+                        pgdw.setDesc(desc);
+
                         gcData.waypoints.add(pgdw);
                     }
                     wp.close();
 
                     p.gcData = gcData;
                     // where to obtain more data
-                    p.setExtraOnDisplay("net.kuratkoo.locusaddon.geogetdatabase", "net.kuratkoo.locusaddon.geogetdatabase.DetailActivity", "cacheId", gcData.getCacheID());
+                    p.setExtraOnDisplay(
+                    		"net.kuratkoo.locusaddon.geogetdatabase",
+                    		"net.kuratkoo.locusaddon.geogetdatabase.DetailActivity",
+                    		"cacheId",
+                    		gcData.getCacheID()
+                    );
                     pd.addWaypoint(p);
                 }
 
                 c.close();
-
-                if (this.isCancelled()) {
-                    return null;
-                }
-
             } catch (Exception ex) {
+            	c.close();
                 return ex;
             }
             return null;
@@ -339,6 +329,9 @@ public class PointLoader {
         protected void onCancelled() {
             super.onCancelled();
             Log.d(TAG, "onCancelled");
+            if (c != null) {
+            	c.close();
+            }
             db.close();
         }
     }

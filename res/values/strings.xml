@@ -35,7 +35,7 @@
     <string name="pref_logs_error">Count of logs must be number between 0 and 99</string>
     <string name="pref_radius_title">Distance radius</string>
     <string name="pref_radius_sum">Distance radius in km for load geocaches to Locus</string>
-    <string name="pref_radius_error">Radius must be number between 1 and 999</string>
+    <string name="pref_radius_error">Radius must be number between 0.1 and 9.9 or between 10 and 999</string>
     <string name="pref_limit_title">Geocache count</string>
     <string name="pref_limit_sum">Count of geocaches to load. If value equals 0, limit will not be applied (unlimited).</string>
     <string name="pref_limit_nolimit">no limit</string>
@@ -107,7 +107,7 @@
     <string name="wp_personal_note">Personal note:</string>
     
     <string name="about.version_title">Version</string>
-    <string name="about.version_text" translatable="false">3.3.5</string>
+    <string name="about.version_text" translatable="false">3.3.8</string>
     <string name="about.version_click"> - click for changelog</string>
     <string name="about.contact_title">Contact</string>
     <string name="about.contact_text">jerabek.jakub@gmail.com (English or Czech)</string>

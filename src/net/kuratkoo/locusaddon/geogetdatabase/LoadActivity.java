@@ -1,6 +1,8 @@
 package net.kuratkoo.locusaddon.geogetdatabase;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.ParseException;
@@ -8,7 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -86,6 +87,9 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                 if (this.isCancelled()) {
                     return null;
                 }
+	        	
+
+	        	
                 // center of display
                 Waypoint pp = pointSet[0];
 
@@ -210,48 +214,48 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                 sql += " AND CAST(x AS REAL) > ? AND CAST(x AS REAL) < ? AND CAST(y AS REAL) > ? AND CAST(y AS REAL) < ?";
                 sqlWP += " AND (CAST(waypoint.x AS REAL) > ? AND CAST(waypoint.x AS REAL) < ? AND CAST(waypoint.y AS REAL) > ? AND CAST(waypoint.y AS REAL) < ?) " +
                 		"AND (CAST(geocache.x AS REAL) <= ? OR CAST(geocache.x AS REAL) >= ? OR CAST(geocache.y AS REAL) <= ? OR CAST(geocache.y AS REAL) >= ?)";
+
                 Cursor c = db.rawQuery(sql, cond);
                 Cursor cWP = db.rawQuery(sqlWP, cond2);
 
-                // no caches found
-                if (c.getCount() == 0 && cWP.getCount() == 0) {
-                	return new NoCachesFoundException();
-                }
-                
                 /** Load GC codes **/
                 List<Pair> gcCodes = new ArrayList<Pair>();
                 radius = radius * 70 * 1000;
                 // Caches
                 while (c.moveToNext()) {
-                    if (this.isCancelled()) {
-                        c.close();
-                        return null;
-                    }
-                    
                     Location loc = new Location(TAG);
-                    loc.setLatitude(c.getDouble(c.getColumnIndex("x")));
-                    loc.setLongitude(c.getDouble(c.getColumnIndex("y")));
-                    if (loc.distanceTo(curr) < radius){
-                    	gcCodes.add(new Pair(loc.distanceTo(curr), c.getString(c.getColumnIndex("id"))));
+                    loc.setLatitude(c.getDouble(0));
+                    loc.setLongitude(c.getDouble(1));
+                    if (loc.distanceTo(curr) < radius) {
+                    	gcCodes.add(new Pair(loc.distanceTo(curr), c.getString(2)));
                     }
-                	
-                }
-                // Waypoints
-                while (cWP.moveToNext()){
-                    if (this.isCancelled()) {
-                        cWP.close();
-                        return null;
-                    }
-                    
-                    Location loc = new Location(TAG);
-                    loc.setLatitude(cWP.getDouble(cWP.getColumnIndex("x")));
-                    loc.setLongitude(cWP.getDouble(cWP.getColumnIndex("y")));
-                    if (loc.distanceTo(curr) < radius){
-                    	gcCodes.add(new Pair(loc.distanceTo(curr), cWP.getString(cWP.getColumnIndex("id"))));
-                    }                	
                 }
                 c.close();
+                
+                if (this.isCancelled()) {
+                    cWP.close();
+                    return null;
+                }
+
+                // Waypoints
+                while (cWP.moveToNext()) {
+                    Location loc = new Location(TAG);
+                    loc.setLatitude(cWP.getDouble(0));
+                    loc.setLongitude(cWP.getDouble(1));
+                    if (loc.distanceTo(curr) < radius){
+                    	gcCodes.add(new Pair(loc.distanceTo(curr), cWP.getString(2)));
+                    }
+                }
                 cWP.close();
+
+                if (this.isCancelled()) {
+                    return null;
+                }
+
+                // no caches found
+                if (gcCodes.size() == 0) {
+                	return new NoCachesFoundException();
+                }
 
                 int limit = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("limit", "0"));
 
@@ -267,163 +271,166 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                     // cut off the rest
                     gcCodes = gcCodes.subList(0, limit);
                 }
-                
+
                 // columns
                 String columns = " geocache.id, x, y, name, difficulty, terrain, cachesize, cachetype, cachestatus, dtfound, author ";
-                if (importCaches){
-                	columns += ", author, country, state, comment, hint, shortdesc, longdesc, geocache.dtupdate2, dthidden, shortdescflag, longdescflag ";
+                if (importCaches) {
+                	columns += " , country, state, comment, hint, shortdesc, longdesc, geocache.dtupdate2, dthidden, shortdescflag, longdescflag ";
                 }
 
                 // GC codes
+                int total = gcCodes.size();
                 String codesCond = "(\""+gcCodes.remove(0).gcCode+"\"";
                 for (Pair pair : gcCodes) {
                 	codesCond += ",\""+pair.gcCode+"\"";
                 }
                 codesCond += ")";
-                
-                String query = "SELECT " + columns + " " +
-                		"FROM geocache " +
-                		"LEFT JOIN geolist ON geolist.id = geocache.id " +
-                		"WHERE geocache.id IN " + codesCond;
+
+                String query = "SELECT " + columns + " FROM geocache ";
+                if (importCaches) {
+                	query += " LEFT JOIN geolist ON geolist.id = geocache.id ";
+                }
+                query += " WHERE geocache.id IN " + codesCond;
                 Cursor caches = db.rawQuery(query, null);
+
                 int count = 0;
-                int total = caches.getCount();
+                byte[] buff = new byte[100000];
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());
+                String queryTags = "SELECT geotagcategory.value AS key, geotagvalue.value FROM geotag " +
+                		"INNER JOIN geotagcategory ON geotagcategory.key = geotag.ptrkat " +
+                		"INNER JOIN geotagvalue ON geotagvalue.key = geotag.ptrvalue " +
+                		"WHERE geotagcategory.value IN (\"favorites\", \"Elevation\", \"PMO\") AND geotag.id = ?";
+                String queryWPs = "SELECT x, y, name, wpttype, cmt, prefixid, comment, flag FROM waypoint WHERE id = ?";
+                String queryLogs = "SELECT type, finder, logtext, dt FROM geolog WHERE id = ? LIMIT ?";
+                String logsLimit = PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("logs_count", "0");
                 long t2 = System.nanoTime();
-                while(caches.moveToNext()) {
+                while (caches.moveToNext()) {
                     if (this.isCancelled()) {
                     	caches.close();
                         return null;
-                    }                    
+                    }
 
                     publishProgress(new Integer[]{++count, total});
                     
-                    byte[] buff = new byte[100000];
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());                   
+                    buff = new byte[100000];
 
                     Location loc = new Location(TAG);
-                    loc.setLatitude(caches.getDouble(caches.getColumnIndex("x")));
-                    loc.setLongitude(caches.getDouble(caches.getColumnIndex("y")));
-                    Waypoint wpt = new Waypoint(caches.getString(caches.getColumnIndex("name")), loc);
+                    // geocache.id, x, y, name, difficulty, terrain, cachesize, cachetype, cachestatus, dtfound, author
+                    // import -> country, state, comment, hint, shortdesc, longdesc, geocache.dtupdate2, dthidden, shortdescflag, longdescflag
+                    loc.setLatitude(caches.getDouble(1));
+                    loc.setLongitude(caches.getDouble(2));
+                    Waypoint wpt = new Waypoint(caches.getString(3), loc);
                     
                     GeocachingData gcData = new GeocachingData();
-                    gcData.setCacheID(caches.getString(caches.getColumnIndex("id")));
-                    gcData.setName(caches.getString(caches.getColumnIndex("name")));
-                    gcData.difficulty = caches.getFloat(caches.getColumnIndex("difficulty"));
-                    gcData.terrain = caches.getFloat(caches.getColumnIndex("terrain"));
-                    gcData.setContainer(Geoget.convertCacheSize(caches.getString(caches.getColumnIndex("cachesize"))));
-                    gcData.type = Geoget.convertCacheType(caches.getString(caches.getColumnIndex("cachetype")));                    
-                    gcData.available = Geoget.isAvailable(caches.getInt(caches.getColumnIndex("cachestatus")));
-                    gcData.archived = Geoget.isArchived(caches.getInt(caches.getColumnIndex("cachestatus")));
-                    gcData.found = Geoget.isFound(caches.getInt(caches.getColumnIndex("dtfound")));
-                    gcData.setOwner(caches.getString(caches.getColumnIndex("author")));
-                    gcData.setPlacedBy(caches.getString(caches.getColumnIndex("author")));
+                    gcData.setCacheID(caches.getString(0));
+                    gcData.setName(caches.getString(3));
+                    gcData.difficulty = caches.getFloat(4);
+                    gcData.terrain = caches.getFloat(5);
+                    gcData.setContainer(Geoget.convertCacheSize(caches.getString(6)));
+                    gcData.type = Geoget.convertCacheType(caches.getString(7));                    
+                    gcData.available = Geoget.isAvailable(caches.getInt(8));
+                    gcData.archived = Geoget.isArchived(caches.getInt(8));
+                    gcData.found = Geoget.isFound(caches.getInt(9));
+                    gcData.setOwner(caches.getString(10));
+                    gcData.setPlacedBy(caches.getString(10));
                     gcData.computed = false;
 
                     if (importCaches) {
-	                    gcData.setCountry(caches.getString(caches.getColumnIndex("country")));
-	                    gcData.setState(caches.getString(caches.getColumnIndex("state")));
-	                    gcData.setNotes(caches.getString(caches.getColumnIndex("comment")));
-	
-	                    gcData.setEncodedHints(caches.getString(caches.getColumnIndex("hint")));
+	                    gcData.setCountry(caches.getString(11));
+	                    gcData.setState(caches.getString(12));
+	                    gcData.setNotes(caches.getString(13));
+	                    gcData.setEncodedHints(caches.getString(14));
 	
 	                    gcData.setShortDescription(
-	                    		Geoget.decodeZlib(caches.getBlob(caches.getColumnIndex("shortdesc")), buff),
-	                    		(caches.getInt(caches.getColumnIndex("shortdescflag")) == 1 ? true : false));
+	                    		Geoget.decodeZlib(caches.getBlob(15), buff),
+	                    		(caches.getInt(19) == 1 ? true : false));
 	
 	                    gcData.setLongDescription(
-	                    		Geoget.decodeZlib(caches.getBlob(caches.getColumnIndex("longdesc")), buff),
-	                    		(caches.getInt(caches.getColumnIndex("longdescflag")) == 1 ? true : false));
+	                    		Geoget.decodeZlib(caches.getBlob(16), buff),
+	                    		(caches.getInt(20) == 1 ? true : false));
 
-	                    Date date = new Date();
-	                    gcData.dateCreated = date.getTime();
-	                    gcData.lastUpdated = caches.getLong(caches.getColumnIndex("dtupdate2"));
+	                    gcData.lastUpdated = caches.getLong(17);
 	                    try {
-	                    	gcData.hidden = dateFormat.parse(caches.getString(caches.getColumnIndex("dthidden"))).getTime();
-	                    } catch(ParseException ex) {
-	                    	gcData.hidden = 0;
+	                    	gcData.dateCreated = dateFormat.parse(caches.getString(18)).getTime();
+	                    } catch (ParseException ex) {
+	                    	gcData.dateCreated = 0;
 	                    }
                     }
-                    
+
                     /** Add PMO tag, favorite points and elevation **/
-                    String queryTags = "SELECT geotag.id, geotagcategory.value AS key, geotagvalue.value FROM geotag " +
-                    		"INNER JOIN geotagcategory ON geotagcategory.key = geotag.ptrkat " +
-                    		"INNER JOIN geotagvalue ON geotagvalue.key = geotag.ptrvalue " +
-                    		"WHERE geotagcategory.value IN (\"favorites\", \"Elevation\", \"PMO\") AND geotag.id = ?";
                     Cursor tags = db.rawQuery(queryTags, new String[]{gcData.getCacheID()});
-                    while (tags.moveToNext()){
-                   		String key = tags.getString(tags.getColumnIndex("key"));
-                   		String value = tags.getString(tags.getColumnIndex("value"));
+                    while (tags.moveToNext()) {
+                   		String key = tags.getString(0);
+                   		String value = tags.getString(1);
 
                    		if (key.equals("PMO") && value.equals("X")) {
                    			gcData.premiumOnly = true;
                    		} else if (key.equals("favorites")) {
-                   			gcData.favoritePoints = Integer.parseInt(value);
+                   			try {
+                   				gcData.favoritePoints = Integer.parseInt(value);
+                   			} catch (NumberFormatException e) {
+                   				// do nothing
+                   			}
                    		} else if (key.equals("Elevation")) {
-                    		wpt.getLocation().setAltitude(Double.parseDouble(value));
+                   			try {
+                   				wpt.getLocation().setAltitude(Double.parseDouble(value));
+                   			} catch (NumberFormatException e){
+                   				// do nothing
+                   			}
                    		}
                    	}
                     tags.close();
 
                     /** Add waypoints to Geocache **/
-                    Cursor wp = db.rawQuery(
-                    		"SELECT x, y, name, wpttype, cmt, prefixid, comment, flag FROM waypoint WHERE id = ?",
-                    		new String[]{gcData.getCacheID()});
-
+                    // SELECT x, y, name, wpttype, cmt, prefixid, comment FROM waypoint WHERE id = ?
+                    Cursor wp = db.rawQuery(queryWPs, new String[]{gcData.getCacheID()});
                     while (wp.moveToNext()) {
-                        if (this.isCancelled()) {
-                        	caches.close();
-                            wp.close();
-                            return null;
-                        }
-
                         GeocachingWaypoint pgdw = new GeocachingWaypoint();
-                        pgdw.lat = wp.getDouble(wp.getColumnIndex("x"));
-                        pgdw.lon = wp.getDouble(wp.getColumnIndex("y"));
-                        pgdw.name = wp.getString(wp.getColumnIndex("name"));
-                        pgdw.type = Geoget.convertWaypointType(wp.getString(wp.getColumnIndex("wpttype")));
-                        pgdw.desc = wp.getString(wp.getColumnIndex("cmt"));
-                        pgdw.code = wp.getString(wp.getColumnIndex("prefixid"));
+                        pgdw.setLat(wp.getDouble(0));
+                        pgdw.setLon(wp.getDouble(1));
+                        pgdw.setName(wp.getString(2));
+                        pgdw.setType(Geoget.convertWaypointType(wp.getString(3)));
+                        pgdw.setCode(wp.getString(5));
+
+                        String desc = wp.getString(4);
 
                         // Personal note from Geoget
-                        String comment = wp.getString(wp.getColumnIndex("comment"));
+                        String comment = wp.getString(6);
                         if (comment != null && !comment.equals("")){
-                        	pgdw.desc += " <hr><b>" + getString(R.string.wp_personal_note) + "</b> " + comment;
+                        	desc += " <hr><b>" + getString(R.string.wp_personal_note) + "</b> " + comment;
                         }
+
+                        pgdw.setDesc(desc);
 
                         gcData.waypoints.add(pgdw);
                     }
                     wp.close();
 
-                    if (importCaches){
-                        /** Add logs to Geocache - only if import is enabled **/
-                    	String logsLimit = PreferenceManager.getDefaultSharedPreferences(LoadActivity.this).getString("logs_count", "0");
-	                    Cursor logs = db.rawQuery(
-	                    		"SELECT dt, type, finder, logtext FROM geolog WHERE id = ? LIMIT ?",
-	                    		new String[]{gcData.getCacheID(), logsLimit});
+                    /** Add logs to Geocache - only if import is enabled **/
+                    // SELECT type, finder, logtext, dt FROM geolog WHERE id = ? LIMIT ?
+                    if (importCaches) {
+	                    Cursor logs = db.rawQuery(queryLogs, new String[]{gcData.getCacheID(), logsLimit});
 	
-	                    while (logs.moveToNext()) {
-	                        if (this.isCancelled()) {
-	                        	caches.close();
-	                            logs.close();
-	                            return null;
-	                        }
-	
+	                    while (logs.moveToNext()) {	
 	                        GeocachingLog log = new GeocachingLog();
-	                        log.finder = logs.getString(logs.getColumnIndex("finder"));
-	                        log.logText = Geoget.decodeZlib(logs.getBlob(logs.getColumnIndex("logtext")), buff);
-	                        log.type = Geoget.convertLogType(logs.getString(logs.getColumnIndex("type")));
+	                        log.type = Geoget.convertLogType(logs.getString(0));
+	                        log.finder = logs.getString(1);
+	                        log.logText = Geoget.decodeZlib(logs.getBlob(2), buff);
 	                        try {
-	                        	log.date = dateFormat.parse(logs.getString(logs.getColumnIndex("dt"))).getTime();
+	                        	log.date = dateFormat.parse(logs.getString(3)).getTime();
 	                        } catch (ParseException ex){
 	                        	log.date = 0;
 	                        }
-	                        
+
 	                        gcData.logs.add(log);
 	                    }
 	                    logs.close();
                     }
                     
+                    /** Add geocaching data to waypoint **/
                     wpt.gcData = gcData;
+                    
+                    /** Where to obtain more data **/
                     if (!importCaches){
                     	wpt.setExtraOnDisplay(
                     		"net.kuratkoo.locusaddon.geogetdatabase",
@@ -431,16 +438,32 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                     		"cacheId",
                     		gcData.getCacheID());
                     }
+                    
+                    /** Add waypoint to list **/
                     packWpt.addWaypoint(wpt);
                 }
                 caches.close();
+                
                 long t3 = System.nanoTime();
                 Log.d("VOLDIK", "Pøíprava: " + (t2-t1)/1000000);
                 Log.d("VOLDIK", "Cyklus: " + (t3-t2)/1000000);
                 Log.d("VOLDIK", "Celkem: " + (t3-t1)/1000000);
+                
                 if (this.isCancelled()) {
                     return null;
                 }
+
+    			File down = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+	        	File file = new File(down.getAbsolutePath() + File.separator + "addonVystup.txt");
+	        	file.getParentFile().mkdirs();
+	        	FileOutputStream fos = new FileOutputStream(file, true);
+	        	fos.write("\n############".getBytes());
+	        	fos.write(("\nPriprava: "+(t2-t1)/1000000+" ms").getBytes());
+	        	fos.write(("\nCyklus: "+(t3-t2)/1000000+" ms").getBytes());
+	        	fos.write(("\nCelkem: "+(t3-t1)/1000000+" ms").getBytes());
+	        	fos.write(("\nNacitano kesi: "+total).getBytes());
+	        	fos.write(("\nKesi za sekundu: "+((float) total/((float) (t3-t1)/1000000000))).getBytes());
+	        	fos.close();
                 return null;
             } catch (Exception e) {
                 return e;
@@ -456,7 +479,19 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
             	if (ex.getClass().getName().contains("NoCachesFoundException")) {
                 	Toast.makeText(LoadActivity.this, getString(R.string.no_caches_found), Toast.LENGTH_LONG).show();
             	} else {
-            		ex.printStackTrace();
+            		try {
+	        			File down = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+	    	        	File file = new File(down.getAbsolutePath() + File.separator + "addonERRVystup.txt");
+	    	        	file.getParentFile().mkdirs();
+	    	        	FileOutputStream fos = new FileOutputStream(file, true);
+	    	        	fos.write("\n############\n".getBytes());
+	    	        	PrintWriter pw = new PrintWriter(fos);     
+	    	            ex.printStackTrace(pw);
+	    	            pw.close();
+	    	        	fos.close();
+	            		ex.printStackTrace();
+            		} catch (Exception e2) {}
+
             		Toast.makeText(LoadActivity.this, getString(R.string.unable_to_load_geocaches) + " (" + ex.getClass() + ")", Toast.LENGTH_LONG).show();
                 }
                 LoadActivity.this.finish();

@@ -40,11 +40,11 @@ public class Geoget {
         } else if (logType.equals("Attended")) {
             return GeocachingLog.CACHE_LOG_TYPE_ATTENDED;
         } else if (logType.equals("Didn't find it")) {
-            return GeocachingLog.CACHE_LOG_TYPE_NOT_FOUNDED;
+            return GeocachingLog.CACHE_LOG_TYPE_NOT_FOUND;
         } else if (logType.equals("Enable Listing")) {
             return GeocachingLog.CACHE_LOG_TYPE_ENABLE_LISTING;
         } else if (logType.equals("Found it")) {
-            return GeocachingLog.CACHE_LOG_TYPE_FOUNDED;
+            return GeocachingLog.CACHE_LOG_TYPE_FOUND;
         } else if (logType.equals("Needs Archived")) {
             return GeocachingLog.CACHE_LOG_TYPE_NEEDS_ARCHIVED;
         } else if (logType.equals("Needs Maintenance")) {
