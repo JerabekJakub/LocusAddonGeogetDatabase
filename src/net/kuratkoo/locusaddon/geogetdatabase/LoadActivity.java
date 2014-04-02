@@ -391,15 +391,12 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                         pgdw.setName(wp.getString(2));
                         pgdw.setType(Geoget.convertWaypointType(wp.getString(3)));
                         pgdw.setCode(wp.getString(5));
-
                         String desc = wp.getString(4);
 
-                        // Personal note from Geoget
                         String comment = wp.getString(6);
                         if (comment != null && !comment.equals("")){
                         	desc += " <hr><b>" + getString(R.string.wp_personal_note) + "</b> " + comment;
                         }
-
                         pgdw.setDesc(desc);
 
                         gcData.waypoints.add(pgdw);

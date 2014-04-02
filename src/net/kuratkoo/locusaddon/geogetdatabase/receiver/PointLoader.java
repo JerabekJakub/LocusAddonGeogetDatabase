@@ -274,7 +274,7 @@ public class PointLoader {
                         	desc += " <hr><b>" + context.getString(R.string.wp_personal_note) + "</b> " + comment;
                         }
                         pgdw.setDesc(desc);
-
+                        
                         gcData.waypoints.add(pgdw);
                     }
                     wp.close();
