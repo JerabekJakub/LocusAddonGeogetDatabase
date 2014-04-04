@@ -333,7 +333,6 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                     gcData.found = Geoget.isFound(caches.getInt(9));
                     gcData.setOwner(caches.getString(10));
                     gcData.setPlacedBy(caches.getString(10));
-                    gcData.computed = false;
 
                     if (importCaches) {
 	                    gcData.setCountry(caches.getString(11));
@@ -344,12 +343,13 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 	                    gcData.setShortDescription(
 	                    		Geoget.decodeZlib(caches.getBlob(15), buff),
 	                    		(caches.getInt(19) == 1 ? true : false));
-	
 	                    gcData.setLongDescription(
 	                    		Geoget.decodeZlib(caches.getBlob(16), buff),
 	                    		(caches.getInt(20) == 1 ? true : false));
 
-	                    gcData.lastUpdated = caches.getLong(17);
+	                    Double d = caches.getDouble(17);
+	                    gcData.lastUpdated = Math.round((d-25569) * 86400000);
+
 	                    try {
 	                    	gcData.dateCreated = dateFormat.parse(caches.getString(18)).getTime();
 	                    } catch (ParseException ex) {
@@ -445,22 +445,8 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                 Log.d("VOLDIK", "Pøíprava: " + (t2-t1)/1000000);
                 Log.d("VOLDIK", "Cyklus: " + (t3-t2)/1000000);
                 Log.d("VOLDIK", "Celkem: " + (t3-t1)/1000000);
-                
-                if (this.isCancelled()) {
-                    return null;
-                }
+	        	//fos.write(("\nKesi za sekundu: "+((float) total/((float) (t3-t1)/1000000000))).getBytes());
 
-    			File down = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-	        	File file = new File(down.getAbsolutePath() + File.separator + "addonVystup.txt");
-	        	file.getParentFile().mkdirs();
-	        	FileOutputStream fos = new FileOutputStream(file, true);
-	        	fos.write("\n############".getBytes());
-	        	fos.write(("\nPriprava: "+(t2-t1)/1000000+" ms").getBytes());
-	        	fos.write(("\nCyklus: "+(t3-t2)/1000000+" ms").getBytes());
-	        	fos.write(("\nCelkem: "+(t3-t1)/1000000+" ms").getBytes());
-	        	fos.write(("\nNacitano kesi: "+total).getBytes());
-	        	fos.write(("\nKesi za sekundu: "+((float) total/((float) (t3-t1)/1000000000))).getBytes());
-	        	fos.close();
                 return null;
             } catch (Exception e) {
                 return e;
