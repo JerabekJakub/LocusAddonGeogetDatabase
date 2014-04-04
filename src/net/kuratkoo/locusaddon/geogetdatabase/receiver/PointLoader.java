@@ -256,7 +256,7 @@ public class PointLoader {
                    		}
                    	}
                     tags.close();
-                    
+
                     /** Add waypoints to Geocache **/
                     Cursor wp = db.rawQuery("SELECT x, y, name, wpttype, cmt, prefixid, comment FROM waypoint WHERE id = ?", new String[]{gcData.getCacheID()});
 
