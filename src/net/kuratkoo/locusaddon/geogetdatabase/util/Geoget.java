@@ -45,6 +45,10 @@ public class Geoget {
             return GeocachingLog.CACHE_LOG_TYPE_ENABLE_LISTING;
         } else if (logType.equals("Found it")) {
             return GeocachingLog.CACHE_LOG_TYPE_FOUND;
+        } else if (logType.equals("Archive")) {
+            return GeocachingLog.CACHE_LOG_TYPE_ARCHIVE;
+        } else if (logType.equals("Unarchive")) {
+            return GeocachingLog.CACHE_LOG_TYPE_UNARCHIVE;
         } else if (logType.equals("Needs Archived")) {
             return GeocachingLog.CACHE_LOG_TYPE_NEEDS_ARCHIVED;
         } else if (logType.equals("Needs Maintenance")) {
