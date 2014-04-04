@@ -28,7 +28,6 @@ import android.widget.Toast;
  * @author Jakub Jerabek <jerabek.jakub@gmail.com> since 2014-02
  */
 public class DetailActivity extends Activity {
-
     private static final String TAG = "LocusAddonGeogetDatabase|DetailActivity";
     private Cursor c;
     private Cursor at;
@@ -96,8 +95,10 @@ public class DetailActivity extends Activity {
                 gcData.setNotes(c.getString(c.getColumnIndex("comment")));
                 gcData.computed = false;
 
+                Double d = c.getDouble(c.getColumnIndex("dtupdate2"));
+                gcData.lastUpdated = Math.round((d-25569) * 86400000);
+                
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());
-                gcData.lastUpdated = c.getLong(c.getColumnIndex("dtupdate2"));
                 try {
                     gcData.dateCreated = dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime();
                 } catch(ParseException ex) {
