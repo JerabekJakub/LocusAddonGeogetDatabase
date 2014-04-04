@@ -23,27 +23,32 @@ $ TODO
   % Future plans
   * save changes back to database
   * option to filter out computed caches
+$ 3.3.9
+  % Version 3.3.9
+  _ 2014-04-03
+    * added support for Archive and Unarchive logs
+    * fixed loading hidden and last updated date
 $ 3.3.8
-  % Verze 3.3.8
+  % Version 3.3.8
   _ 2014-03-31
     * fix error from v3.3.7 :-)
     * <b>if loading caches seems slow, please run in GeoGet: Plugins -> Oprava databáze -> Vacuum database</b>
 $ 3.3.7
-  % Verze 3.3.7
+  % Version 3.3.7
   _ 2014-03-30
     * fix: error while loading empty list of caches
 $ 3.3.6
-  % Verze 3.3.6
+  % Version 3.3.6
   _ 2014-03-27
     * fixed crash while loading empty cache
 $ 3.3.5
-  % Verze 3.3.5
+  % Version 3.3.5
   _ 2014-03-26
     * removed repetitive loading waypoints
     * show information that no cache matches user filter
     * bug fixes
 $ 3.3.4
-  % Verze 3.3.4
+  % Version 3.3.4
   _ 2014-03-24
     * optimalization during loading/import
 $ 3.3.3

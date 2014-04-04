@@ -102,7 +102,6 @@
     <string name="about.contact_title">Kontakt</string>
     <string name="about.contact_text">jerabek.jakub@gmail.com (česky nebo anglicky)</string>
     <string name="about.author_title">Autoři</string>
-    <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
     
     <string name="changelog_full_title">Seznam změn</string>
     <string name="changelog_title">Co je nového</string>

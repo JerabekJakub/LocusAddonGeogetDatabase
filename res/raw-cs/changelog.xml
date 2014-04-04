@@ -23,6 +23,12 @@ $ TODO
   % Plány do budoucna
   * zpětný zápis změn do databáze
   * filtrování vypočítaných keší
+$ 3.3.9
+  % Verze 3.3.9
+  _ 2014-04-03
+    * doplněny typy logů Archive a Unarchive
+    * správné načítání data ukrytí a data poslední aktualizace
+    * zrušení výpisu o rychlosti z předchozí verze (chybový zůstal)
 $ 3.3.8
   % Verze 3.3.8
   _ 2014-03-31

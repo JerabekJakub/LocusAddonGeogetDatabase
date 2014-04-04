@@ -107,12 +107,12 @@
     <string name="wp_personal_note">Personal note:</string>
     
     <string name="about.version_title">Version</string>
-    <string name="about.version_text" translatable="false">3.3.8</string>
+    <string name="about.version_text" translatable="false">3.3.9</string>
     <string name="about.version_click"> - click for changelog</string>
     <string name="about.contact_title">Contact</string>
     <string name="about.contact_text">jerabek.jakub@gmail.com (English or Czech)</string>
     <string name="about.author_title">Authors</string>
-    <string name="about.author_text">Radim -Kuratkoo- Vaculík (&lt;3.0.0)\nJakub Jeřábek (&gt;=3.0.0)</string>
+    <string name="about.author_text" translatable="false">Jakub Jeřábek (&gt;=3.0.0)\nRadim -Kuratkoo- Vaculík (&lt;3.0.0)</string>
     
     <string name="changelog_full_title">Change Log</string>
     <string name="changelog_title">What\'s New</string>
