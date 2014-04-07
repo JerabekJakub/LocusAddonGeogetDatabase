@@ -107,7 +107,7 @@
     <string name="wp_personal_note">Personal note:</string>
     
     <string name="about.version_title">Version</string>
-    <string name="about.version_text" translatable="false">3.3.9</string>
+    <string name="about.version_text" translatable="false">3.4.0</string>
     <string name="about.version_click"> - click for changelog</string>
     <string name="about.contact_title">Contact</string>
     <string name="about.contact_text">jerabek.jakub@gmail.com (English or Czech)</string>

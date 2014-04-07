@@ -231,17 +231,19 @@ public class PointLoader {
                     GeocachingData gcData = new GeocachingData();
                     gcData.setCacheID(c.getString(0));
                     gcData.setName(c.getString(3));
-                    gcData.difficulty = c.getFloat(4);
-                    gcData.terrain = c.getFloat(5);
+                    gcData.setDifficulty(c.getFloat(4));
+                    gcData.setTerrain(c.getFloat(5));
                     gcData.setContainer(Geoget.convertCacheSize(c.getString(6)));
-                    gcData.type = Geoget.convertCacheType(c.getString(7));
+                    gcData.setType(Geoget.convertCacheType(c.getString(7)));
                     gcData.setOwner(c.getString(10));
                     gcData.setPlacedBy(c.getString(10));
+                    gcData.setLatOriginal(c.getDouble(1));
+                    gcData.setLonOriginal(c.getDouble(2));
 
-                    gcData.available = Geoget.isAvailable(c.getInt(8));
-                    gcData.archived = Geoget.isArchived(c.getInt(8));
-                    gcData.found = Geoget.isFound(c.getInt(9));
-                    gcData.computed = false;
+                    gcData.setAvailable(Geoget.isAvailable(c.getInt(8)));
+                    gcData.setArchived(Geoget.isArchived(c.getInt(8)));
+                    gcData.setFound(Geoget.isFound(c.getInt(9)));
+
   
                     /** Add PMO tag **/
                     String query = "SELECT geotagvalue.value FROM geotag " +
@@ -252,7 +254,7 @@ public class PointLoader {
 
                     while (tags.moveToNext()){
                    		if (tags.getString(0).equals("X")) {
-                   			gcData.premiumOnly = true;
+                   			gcData.setPremiumOnly(true);
                    		}
                    	}
                     tags.close();

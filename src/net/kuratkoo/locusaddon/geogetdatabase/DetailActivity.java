@@ -81,29 +81,30 @@ public class DetailActivity extends Activity {
                 GeocachingData gcData = new GeocachingData();
                 gcData.setCacheID(c.getString(c.getColumnIndex("id")));
                 gcData.setName(c.getString(c.getColumnIndex("name")));
-                gcData.difficulty = c.getFloat(c.getColumnIndex("difficulty"));
-                gcData.terrain = c.getFloat(c.getColumnIndex("terrain"));
+                gcData.setDifficulty(c.getFloat(c.getColumnIndex("difficulty")));
+                gcData.setTerrain(c.getFloat(c.getColumnIndex("terrain")));
                 gcData.setContainer(Geoget.convertCacheSize(c.getString(c.getColumnIndex("cachesize"))));
-                gcData.type = Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype")));                    
-                gcData.available = Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus")));
-                gcData.archived = Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus")));
-                gcData.found = Geoget.isFound(c.getInt(c.getColumnIndex("dtfound")));
+                gcData.setType(Geoget.convertCacheType(c.getString(c.getColumnIndex("cachetype"))));                    
+                gcData.setAvailable(Geoget.isAvailable(c.getInt(c.getColumnIndex("cachestatus"))));
+                gcData.setArchived(Geoget.isArchived(c.getInt(c.getColumnIndex("cachestatus"))));
+                gcData.setFound(Geoget.isFound(c.getInt(c.getColumnIndex("dtfound"))));
                 gcData.setOwner(c.getString(c.getColumnIndex("author")));
                 gcData.setPlacedBy(c.getString(c.getColumnIndex("author")));
                 gcData.setCountry(c.getString(c.getColumnIndex("country")));
                 gcData.setState(c.getString(c.getColumnIndex("state")));
                 gcData.setNotes(c.getString(c.getColumnIndex("comment")));
-                gcData.computed = false;
+                gcData.setLatOriginal(c.getDouble(c.getColumnIndex("x")));
+                gcData.setLonOriginal(c.getDouble(c.getColumnIndex("y")));
 
                 Double d = c.getDouble(c.getColumnIndex("dtupdate2"));
-                gcData.lastUpdated = Math.round((d-25569) * 86400000);
+                gcData.setLastUpdated(Math.round((d-25569) * 86400000));
                 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMd", Locale.getDefault());
                 try {
-                    gcData.dateCreated = dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime();
+                    gcData.setDateCreated(dateFormat.parse(c.getString(c.getColumnIndex("dthidden"))).getTime());
                 } catch(ParseException ex) {
                 	ex.printStackTrace();
-                	gcData.dateCreated = 0;
+                	gcData.setDateCreated(0);
                 }
 
                 // Try to get files
@@ -150,9 +151,9 @@ public class DetailActivity extends Activity {
                		String value = tags.getString(tags.getColumnIndex("value"));
                		
                		if (key.equals("PMO") && value.equals("X")) {
-               			gcData.premiumOnly = true;
+               			gcData.setPremiumOnly(true);
                		} else if (key.equals("favorites")) {
-               			gcData.favoritePoints = Integer.parseInt(value);
+               			gcData.setFavoritePoints(Integer.parseInt(value));
                		} else if (key.equals("Elevation")) {
                 		wpt.getLocation().setAltitude(Double.parseDouble(value));
                		}
@@ -167,13 +168,13 @@ public class DetailActivity extends Activity {
                 while (logs.moveToNext()) {
                 	GeocachingLog pgdl = new GeocachingLog();
                 	
-                    pgdl.finder = logs.getString(logs.getColumnIndex("finder"));
-                    pgdl.logText = Geoget.decodeZlib(logs.getBlob(logs.getColumnIndex("logtext")), buff);
-                    pgdl.type = Geoget.convertLogType(logs.getString(logs.getColumnIndex("type")));
+                    pgdl.setFinder(logs.getString(logs.getColumnIndex("finder")));
+                    pgdl.setLogText(Geoget.decodeZlib(logs.getBlob(logs.getColumnIndex("logtext")), buff));
+                    pgdl.setType(Geoget.convertLogType(logs.getString(logs.getColumnIndex("type"))));
                     try {
-                        pgdl.date = dateFormat.parse(logs.getString(logs.getColumnIndex("dt"))).getTime();
+                        pgdl.setDate(dateFormat.parse(logs.getString(logs.getColumnIndex("dt"))).getTime());
                     } catch (ParseException ex) {
-                    	pgdl.date = 0;
+                    	pgdl.setDate(0);
                     }                    
 					gcData.logs.add(pgdl);
                 }

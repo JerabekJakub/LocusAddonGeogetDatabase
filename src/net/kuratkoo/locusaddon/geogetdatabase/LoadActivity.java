@@ -324,15 +324,17 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                     GeocachingData gcData = new GeocachingData();
                     gcData.setCacheID(caches.getString(0));
                     gcData.setName(caches.getString(3));
-                    gcData.difficulty = caches.getFloat(4);
-                    gcData.terrain = caches.getFloat(5);
+                    gcData.setDifficulty(caches.getFloat(4));
+                    gcData.setTerrain(caches.getFloat(5));
                     gcData.setContainer(Geoget.convertCacheSize(caches.getString(6)));
-                    gcData.type = Geoget.convertCacheType(caches.getString(7));                    
-                    gcData.available = Geoget.isAvailable(caches.getInt(8));
-                    gcData.archived = Geoget.isArchived(caches.getInt(8));
-                    gcData.found = Geoget.isFound(caches.getInt(9));
+                    gcData.setType(Geoget.convertCacheType(caches.getString(7)));                    
+                    gcData.setAvailable(Geoget.isAvailable(caches.getInt(8)));
+                    gcData.setArchived(Geoget.isArchived(caches.getInt(8)));
+                    gcData.setFound(Geoget.isFound(caches.getInt(9)));
                     gcData.setOwner(caches.getString(10));
                     gcData.setPlacedBy(caches.getString(10));
+                    gcData.setLatOriginal(caches.getDouble(1));
+                    gcData.setLonOriginal(caches.getDouble(2));
 
                     if (importCaches) {
 	                    gcData.setCountry(caches.getString(11));
@@ -348,12 +350,12 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 	                    		(caches.getInt(20) == 1 ? true : false));
 
 	                    Double d = caches.getDouble(17);
-	                    gcData.lastUpdated = Math.round((d-25569) * 86400000);
+	                    gcData.setHidden(Math.round((d-25569) * 86400000));
 
 	                    try {
-	                    	gcData.dateCreated = dateFormat.parse(caches.getString(18)).getTime();
+	                    	gcData.setDateCreated(dateFormat.parse(caches.getString(18)).getTime());
 	                    } catch (ParseException ex) {
-	                    	gcData.dateCreated = 0;
+	                    	gcData.setDateCreated(0);
 	                    }
                     }
 
@@ -364,10 +366,10 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
                    		String value = tags.getString(1);
 
                    		if (key.equals("PMO") && value.equals("X")) {
-                   			gcData.premiumOnly = true;
+                   			gcData.setPremiumOnly(true);
                    		} else if (key.equals("favorites")) {
                    			try {
-                   				gcData.favoritePoints = Integer.parseInt(value);
+                   				gcData.setFavoritePoints(Integer.parseInt(value));
                    			} catch (NumberFormatException e) {
                    				// do nothing
                    			}
@@ -410,13 +412,13 @@ public class LoadActivity extends Activity implements DialogInterface.OnDismissL
 	
 	                    while (logs.moveToNext()) {	
 	                        GeocachingLog log = new GeocachingLog();
-	                        log.type = Geoget.convertLogType(logs.getString(0));
-	                        log.finder = logs.getString(1);
-	                        log.logText = Geoget.decodeZlib(logs.getBlob(2), buff);
+	                        log.setType(Geoget.convertLogType(logs.getString(0)));
+	                        log.setFinder(logs.getString(1));
+	                        log.setLogText(Geoget.decodeZlib(logs.getBlob(2), buff));
 	                        try {
-	                        	log.date = dateFormat.parse(logs.getString(3)).getTime();
+	                        	log.setDate(dateFormat.parse(logs.getString(3)).getTime());
 	                        } catch (ParseException ex){
-	                        	log.date = 0;
+	                        	log.setDate(0);
 	                        }
 
 	                        gcData.logs.add(log);
